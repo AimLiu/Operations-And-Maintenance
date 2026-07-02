@@ -1,0 +1,167 @@
+# =============================================================================
+# Java / Maven / Spring Boot
+# =============================================================================
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+*.gitkeep
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# Maven flatten plugin / release temp
+.flattened-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+dependency-reduced-pom.xml
+
+# Spring Boot
+spring-boot-*.log
+spring.log
+
+# =============================================================================
+# IntelliJ IDEA
+# =============================================================================
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# User-specific IDE settings (also covered by .idea/, listed for clarity)
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/shelf/
+.idea/**/httpRequests/
+.idea/**/dataSources/
+.idea/**/dataSources.local.xml
+.idea/**/dbnavigator.xml
+.idea/**/gradle.xml
+.idea/**/libraries/
+.idea/**/mongoSettings.xml
+
+# =============================================================================
+# Eclipse / STS (optional tooling)
+# =============================================================================
+.classpath
+.project
+.settings/
+bin/
+.factorypath
+.apt_generated/
+.springBeans
+.sts4-cache/
+
+# =============================================================================
+# VS Code / Cursor
+# =============================================================================
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.cursor/
+
+# =============================================================================
+# OS generated files
+# =============================================================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# =============================================================================
+# Logs & runtime output
+# =============================================================================
+logs/
+*.log
+*.log.*
+*.out
+*.pid
+*.seed
+*.pid.lock
+
+# =============================================================================
+# Local secrets & environment-specific config
+# (commit *.example templates instead)
+# =============================================================================
+.env
+.env.*
+!.env.example
+
+**/application-local.yml
+**/application-local.yaml
+**/application-local.properties
+**/application-*.local.yml
+**/application-*.local.yaml
+**/application-*.local.properties
+
+secrets/
+*.pem
+*.key
+*.p12
+*.jks
+!**/src/test/**/*.jks
+
+# =============================================================================
+# Docker / Observability stack runtime data
+# =============================================================================
+docker/**/data/
+docker/**/prometheus/data/
+docker/**/grafana/data/
+docker/**/alertmanager/data/
+
+# Local compose overrides (machine-specific ports, volumes, etc.)
+docker-compose.override.yml
+docker-compose.*.local.yml
+**/docker-compose.override.yml
+
+# =============================================================================
+# Test & coverage reports
+# =============================================================================
+test-output/
+coverage/
+*.exec
+.jacoco/
+surefire-reports/
+failsafe-reports/
+
+# =============================================================================
+# Package managers / front-end (if added later)
+# =============================================================================
+node_modules/
+dist/
+build/
+
+# =============================================================================
+# Misc
+# =============================================================================
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
+*.orig
+.cache/
