@@ -1,0 +1,10 @@
+# iot-learn-lab/infra/grafana/provisioning/dashboards/default.yml
+apiVersion: 1
+providers:
+  - name: iot-learn
+    orgId: 1
+    folder: IoT Learn
+    type: file
+    disableDeletion: false
+    options:
+      path: /var/lib/grafana/dashboards

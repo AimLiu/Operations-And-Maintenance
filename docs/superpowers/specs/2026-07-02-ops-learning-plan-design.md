@@ -96,6 +96,7 @@
 | 层次    | 技术选型                             |
 | ----- | -------------------------------- |
 | 语言/框架 | Java 21 / Spring Boot 3.x / Maven 多模块 |
+| 服务端口 | device-report-service 默认 **8765**（金丝雀 v2 可用 **8766**） |
 | 数据库   | PostgreSQL 16（`postgres-alpine`） |
 | ORM   | Spring Data JPA 或 MyBatis-Plus   |
 | 缓存    | Redis 7                          |
@@ -268,8 +269,8 @@ APISIX → device-report-service ──Feign──→ command-dispatch-service
 
 ```
 APISIX:
-  device-report-v1  weight=90  →  :8081
-  device-report-v2  weight=10  →  :8082
+  device-report-v1  weight=90  →  :8765
+  device-report-v2  weight=10  →  :8766
 Grafana 对比 v1 vs v2 错误率、延迟
 ```
 

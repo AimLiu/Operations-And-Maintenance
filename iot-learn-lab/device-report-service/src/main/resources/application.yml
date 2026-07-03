@@ -1,11 +1,12 @@
 server:
-  port: 8080
+  port: 8765
 
 spring:
   application:
     name: device-report-service
   datasource:
-    url: jdbc:postgresql://192.168.19.64:5432/iot_learn
+    # TimeZone 仅影响 PostgreSQL 会话的显示/解析方式；TIMESTAMPTZ 内部仍存 UTC 时刻
+    url: jdbc:postgresql://192.168.19.64:5432/iot_learn?options=-c%20TimeZone=Asia/Shanghai
     username: postgres
     password: postgres
     hikari:
@@ -18,7 +19,12 @@ spring:
     properties:
       hibernate:
         jdbc:
-          time_zone: shanghai/Asian
+          # 作用于 LocalDateTime/Timestamp 等无时区类型；Instant 映射 TIMESTAMPTZ 始终按 UTC 时刻存储
+          time_zone: Asia/Shanghai
+  jackson:
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
 
 management:
   endpoints:
@@ -39,6 +45,8 @@ management:
       slo:
         http.server.requests: 50ms, 100ms, 200ms, 500ms, 1s
 
+# 日志目录由 ModuleLogPathEnvironmentPostProcessor 自动解析为 iot-learn-lab/device-report-service/log
+# 仅当设置环境变量 LOGGING_FILE_PATH 时才覆盖
 logging:
   level:
     com.iot.learn: INFO

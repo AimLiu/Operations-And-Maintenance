@@ -23,9 +23,13 @@ mvn clean verify
 
 ## 运行 device-report-service
 
+默认端口 **8765**（`application.yml` 中 `server.port`，避免与本地其他服务冲突）。
+
 ```bash
 mvn spring-boot:run -pl device-report-service
 ```
+
+健康检查：`http://localhost:8765/actuator/health`
 
 ## 目录结构
 

@@ -6,7 +6,7 @@
 
 **Architecture:** Spring Boot 3 应用通过 Micrometer 暴露 `/actuator/prometheus` 指标；Prometheus 抓取应用与 APISIX；Grafana 展示 RED（Rate/Errors/Duration）+ JVM + HikariCP 连接池；PostgreSQL 存储设备上报记录。学习采用「场景驱动」：每个场景有明确业务背景、要看的指标、预期曲线变化。
 
-**Tech Stack:** Java 21, Maven 多模块, Spring Boot 3.3, Spring Data JPA, PostgreSQL 16, Micrometer, Prometheus 2.55, Grafana 11.3, APISIX 3.13
+**Tech Stack:** Java 21, Maven 多模块, Spring Boot 3.3, Spring Data JPA, PostgreSQL 16, Micrometer, Prometheus 2.55, Grafana 11.3, APISIX 3.13（device-report-service 默认端口 **8765**）
 
 **Spec 来源:** `docs/superpowers/specs/2026-07-02-ops-learning-plan-design.md`（Phase 1 / W1–W2）
 
@@ -845,11 +845,11 @@ mvn spring-boot:run -pl device-report-service
 另开终端：
 
 ```bash
-curl -s http://localhost:8080/actuator/health | jq .
-curl -s -X POST http://localhost:8080/api/v1/devices/device-001/reports \
+curl -s http://localhost:8765/actuator/health | jq .
+curl -s -X POST http://localhost:8765/api/v1/devices/device-001/reports \
   -H "Content-Type: application/json" \
   -d '{"payload":{"temperature":25.5,"humidity":60}}' | jq .
-curl -s http://localhost:8080/actuator/prometheus | grep http_server_requests_seconds_count | head -5
+curl -s http://localhost:8765/actuator/prometheus | grep http_server_requests_seconds_count | head -5
 ```
 
 Expected:
@@ -879,13 +879,13 @@ git commit -m "feat(phase1): add debug endpoints for error and slow-query scenar
   metrics_path: /actuator/prometheus
   static_configs:
     - targets:
-        - host.docker.internal:8080
+        - host.docker.internal:8765
       labels:
         env: learn
         service: device-report-service
 ```
 
-> **WSL Docker 说明：** Prometheus 容器内访问宿主机 Spring Boot 用 `host.docker.internal:8080`。若不通，改用宿主机 WSL IP（`ip addr show eth0`）或 `172.17.0.1:8080`。
+> **WSL Docker 说明：** Prometheus 容器内访问宿主机 Spring Boot 用 `host.docker.internal:8765`。若不通，改用宿主机 WSL IP（`ip addr show eth0`）或 `172.17.0.1:8765`。
 
 - [ ] **Step 2: 合并到 prometheus-learn 并热加载**
 
@@ -930,7 +930,7 @@ git commit -m "feat(phase1): add Prometheus scrape config for device-report-serv
 # 场景 S2：模拟 100 设备持续上报 60 秒
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-http://localhost:8080}"
+BASE_URL="${BASE_URL:-http://localhost:8765}"
 DURATION="${DURATION:-60}"
 
 echo "=== S2 设备上报流量突增 ==="
@@ -987,7 +987,7 @@ git commit -m "feat(phase1): add S2 device burst load test script"
 # iot-learn-lab/scripts/scenario-s3-error-injection.sh
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-http://localhost:8080}"
+BASE_URL="${BASE_URL:-http://localhost:8765}"
 DURATION="${DURATION:-120}"
 
 echo "=== S3 应用异常错误飙升 ==="
@@ -1012,7 +1012,8 @@ echo "=== S3 完成，检查错误率是否 > 5% ==="
 # iot-learn-lab/scripts/scenario-s4-db-pressure.sh
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-http://localhost:8080}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BASE_URL="${BASE_URL:-http://localhost:8765}"
 
 echo "=== S4 数据库连接池压力 ==="
 echo "先启动 10 个慢查询（每个占连接 5 秒）..."
@@ -1023,7 +1024,7 @@ done
 
 sleep 2
 echo "慢查询已占用连接池，现在叠加正常流量..."
-DURATION=60 ./iot-learn-lab/scripts/scenario-s2-device-burst.sh
+DURATION=60 BASE_URL="$BASE_URL" "$SCRIPT_DIR/scenario-s2-device-burst.sh"
 
 echo "=== S4 完成，检查 hikaricp_connections_pending 是否 > 0 ==="
 ```
@@ -1225,7 +1226,7 @@ KEY="<ADMIN_KEY>"
 curl -s -X PUT "$ADMIN/upstreams/1" -H "X-API-KEY: $KEY" -H "Content-Type: application/json" -d '{
   "name": "device-report-upstream",
   "type": "roundrobin",
-  "nodes": {"host.docker.internal:8080": 1},
+  "nodes": {"host.docker.internal:8765": 1},
   "checks": {
     "active": {
       "http_path": "/actuator/health",
@@ -1250,7 +1251,7 @@ curl -s -X POST http://localhost:9080/api/v1/devices/device-via-apisix/reports \
   -d '{"payload":{"temperature":30}}' | jq .
 ```
 
-Expected: 201 响应，与直连 8080 一致。
+Expected: 201 响应，与直连 8765 一致。
 
 - [ ] **Step 5: 将 APISIX 加入 Prometheus scrape（可选）**
 

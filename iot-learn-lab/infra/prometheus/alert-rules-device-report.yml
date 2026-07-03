@@ -1,0 +1,42 @@
+# infra/prometheus/alert-rules-device-report.yml
+groups:
+  - name: device-report-service
+    rules:
+      - alert: DeviceReportServiceDown
+        expr: up{job="device-report-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "device-report-service 不可达"
+          description: "Prometheus 无法抓取 device-report-service 超过 1 分钟"
+
+      - alert: DeviceReportHighErrorRate
+        expr: |
+          sum(rate(http_server_requests_seconds_count{application="device-report-service", status=~"5.."}[5m]))
+          / sum(rate(http_server_requests_seconds_count{application="device-report-service"}[5m]))
+          > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "设备上报服务错误率超过 5%"
+
+      - alert: DeviceReportHighLatencyP99
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_server_requests_seconds_bucket{application="device-report-service"}[5m])) by (le)
+          ) > 0.5
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "设备上报服务 P99 延迟超过 500ms"
+
+      - alert: DeviceReportConnectionPoolExhausted
+        expr: hikaricp_connections_pending{application="device-report-service"} > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HikariCP 连接池出现等待队列"

@@ -1,0 +1,17 @@
+# 追加到 prometheus-learn 的 prometheus.yml 的 scrape_configs 末尾
+- job_name: device-report-service
+  metrics_path: /actuator/prometheus
+  static_configs:
+    - targets:
+        - 192.168.16.1:8765
+      labels:
+        env: learn
+        service: device-report-service
+- job_name: apisix
+  metrics_path: /apisix/prometheus/metrics
+  static_configs:
+    - targets:
+        - 192.168.19.64:9091    # WSL 宿主机 IP，或用 host.docker.internal:9091
+      labels:
+        env: learn
+        service: apisix
