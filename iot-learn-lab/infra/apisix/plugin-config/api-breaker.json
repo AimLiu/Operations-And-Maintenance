@@ -1,0 +1,9 @@
+{
+  "api-breaker": {
+    "break_response_code": 503,
+    "break_response_body": "{\"error\":\"circuit open\"}",
+    "max_breaker_sec": 30,
+    "unhealthy": {"http_statuses": [500, 502, 503, 504], "failures": 3},
+    "healthy": {"http_statuses": [200, 201], "successes": 2}
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "limit-count": {
+    "count": 30,
+    "time_window": 60,
+    "rejected_code": 429,
+    "rejected_msg": "rate limit exceeded (limit-count)",
+    "key": "remote_addr",
+    "key_type": "var",
+    "policy": "local"
+  }
+}

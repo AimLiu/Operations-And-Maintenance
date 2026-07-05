@@ -1,0 +1,10 @@
+{
+  "limit-req": {
+    "rate": 10,
+    "burst": 5,
+    "rejected_code": 429,
+    "rejected_msg": "rate limit exceeded (limit-req)",
+    "key": "remote_addr",
+    "key_type": "var"
+  }
+}
