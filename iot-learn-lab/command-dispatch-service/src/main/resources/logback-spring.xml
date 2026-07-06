@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 定义日志输出格式和颜色
+        %red: 指定颜色，记得用小括号将内容包裹起来
+        %d: 日期时间，后面的是日期格式化
+        %thred: 线程名
+        %-5level: 日志级别，%-5表示的是打印字符个数，如果个数不足则用空格补上
+        %logger{36}: 输出日志的包名，最长36字符，超过则会简化，只会输出后面几个包名和类名
+        %line: 输出日志的行数
+        %msg: 输出的日志信息
+        %n: 换行
+     -->
+    <!-- 日志目录：优先 logging.file.path（由 ModuleLogPathEnvironmentPostProcessor 或环境变量设置） -->
+    <springProperty scope="context" name="LOG_PATH" source="logging.file.path" defaultValue="log"/>
+    <!-- 获取该应用的名称 -->
+    <springProperty scope="context" name="APPLICATION_NAME" source="spring.application.name"/>
+
+    <!-- 定义日志输出格式和颜色 -->
+    <property name="LOG_FORMAT_ONE" value="%red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %green([%thread]) %blue([%-5level]) %cyan(%logger{36}:%line) %msg%n" />
+    <property name="LOG_FORMAT_TWO" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%-5level] %logger{36}:%line %msg%n" />
+
+    <!-- 输出到控制台 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 日志输出编码格式化 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>${LOG_FORMAT_ONE}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!-- 过滤器，此过滤器低于阈值的不再显示 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>info</level>
+        </filter>
+    </appender>
+
+    <!-- 时间日期滚动日志 -->
+    <appender name="FILE_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 输出的日志远程，当天的日志名称 -->
+        <file>${LOG_PATH}/${APPLICATION_NAME}_info.log</file>
+        <!-- 策略配置 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 保存归纳的日志 -->
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/info_%i.log</fileNamePattern>
+            <!-- 日志文件最大尺寸 -->
+            <maxFileSize>50MB</maxFileSize>
+            <!--日志文件保留天数-->
+            <MaxHistory>90</MaxHistory>
+        </rollingPolicy>
+        <!-- 日志输出编码格式化 -->
+        <encoder>
+            <pattern>${LOG_FORMAT_TWO}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 时间日期滚动日志，只记录 error 级别（与 info 同级目录，不再嵌套 APPLICATION_NAME 子文件夹） -->
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APPLICATION_NAME}_error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/${APPLICATION_NAME}_error.log</fileNamePattern>
+            <maxHistory>180</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_FORMAT_TWO}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!-- 过滤器，日志级别过滤，仅输出error日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 指定输出的日志等级，root代表工程所有包 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE_INFO" />
+        <appender-ref ref="FILE_ERROR" />
+    </root>
+
+    <!-- 本服务业务包：文件记录 TRACE（学习用），控制台仍由 root 的 ThresholdFilter 仅显示 INFO+ -->
+    <logger name="com.iot.learn" level="TRACE" />
+
+</configuration>

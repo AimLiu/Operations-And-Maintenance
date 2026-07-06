@@ -1,0 +1,8 @@
+# 复制为 application.properties 并在 compose 中挂载后生效
+# cp application.properties.example application.properties
+#
+# 默认账号密码均为 sentinel，生产环境务必修改
+# auth.username=sentinel
+# auth.password=your-strong-password
+#
+# server.port=8858

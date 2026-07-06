@@ -1,0 +1,15 @@
+server:
+  port: 8767
+
+spring:
+  application:
+    name: command-dispatch-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  metrics:
+    tags:
+      application: command-dispatch-service

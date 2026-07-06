@@ -21,6 +21,7 @@
 
     <modules>
         <module>device-report-service</module>
+        <module>command-dispatch-service</module>
     </modules>
 
     <properties>
@@ -32,6 +33,8 @@
         <!-- Align dependency versions for all modules -->
         <micrometer-registry-prometheus.version>1.13.6</micrometer-registry-prometheus.version>
         <postgresql.version>42.7.4</postgresql.version>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <spring-cloud-alibaba.version>2023.0.1.2</spring-cloud-alibaba.version>
     </properties>
 
     <dependencyManagement>
@@ -45,6 +48,20 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

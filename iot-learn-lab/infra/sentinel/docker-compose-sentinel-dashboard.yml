@@ -1,0 +1,67 @@
+# Sentinel Dashboard — Phase 3 应用层限流/熔断可视化控制台
+#
+# 启动（在 WSL 中，于本文件所在目录执行）:
+#   docker compose -f docker-compose-sentinel-dashboard.yml up -d
+#
+# 访问: http://192.168.19.64:8858  默认账号 sentinel / sentinel
+# 需与 device-report-service 中 spring.cloud.sentinel.transport.dashboard 地址一致
+
+name: iot-learn-sentinel
+
+services:
+  sentinel-dashboard:
+    image: bladex/sentinel-dashboard:1.8.8
+    container_name: sentinel-dashboard-learn
+    hostname: sentinel-dashboard
+    restart: unless-stopped
+
+    ports:
+      # 绑定 0.0.0.0，Windows 应用经 192.168.19.64:8858 注册到 Dashboard
+      - "8858:8858"
+      # Sentinel 客户端与 Dashboard 通信用（transport.port，默认 8719）
+      - "8719:8719"
+
+    environment:
+      TZ: Asia/Shanghai
+      # bladex 镜像默认 WORKDIR=/bladex/sentinel，入口 jar 读取 JAVA_OPTS
+      JAVA_OPTS: >-
+        -Djava.security.egd=file:/dev/./urandom
+        -Dserver.port=8858
+        -Dcsp.sentinel.dashboard.server=localhost:8858
+        -Dcsp.sentinel.api.port=8719
+        -Dproject.name=sentinel-dashboard
+        -Dlogging.file.path=/bladex/sentinel/logs
+
+    volumes:
+      # Dashboard 本地数据（会话、缓存等；规则持久化仍推荐走 Nacos）
+      - ./data:/bladex/sentinel/data
+      # 应用与 CSP 日志，便于排查客户端注册 / 规则推送问题
+      - ./logs:/bladex/sentinel/logs
+      # 可选：自定义登录账号、端口等（取消注释并创建 application.properties）
+      # - ./config/application.properties:/bladex/sentinel/config/application.properties:ro
+
+    healthcheck:
+      # 优先 HTTP 探测登录页；镜像无 curl/wget 时回退 TCP 端口检测
+      test:
+        [
+          "CMD-SHELL",
+          "curl -sf http://127.0.0.1:8858/ >/dev/null 2>&1 || wget -q --spider http://127.0.0.1:8858/ 2>/dev/null || bash -c 'exec 3<>/dev/tcp/127.0.0.1/8858'",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - sentinel-net
+
+networks:
+  sentinel-net:
+    name: iot-learn-sentinel
+    driver: bridge

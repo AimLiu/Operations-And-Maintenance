@@ -9,7 +9,8 @@ export UPSTREAM="${UPSTREAM:-192.168.16.1:8765}"                   # APISIX upst
 export ADMIN_KEY="${ADMIN_KEY:-edd1c9f034335f136f87ad84b625c8f1}"  # config.yaml 中的 admin key
 export ROUTE_ID="${ROUTE_ID:-00000000000000000160}"
 export UPSTREAM_ID="${UPSTREAM_ID:-00000000000000000158}"
-
+export NACOS_ADDR="${NACOS_ADDR:-192.168.19.64:8848}"
+export REDIS_HOST="${REDIS_HOST:-192.168.19.64}"
 # 可选：Windows 浏览器访问 WSL 服务时覆盖（一般脚本不需要）
 # export GATEWAY_URL=http://192.168.19.64:9080
 # export ADMIN_API=http://192.168.19.64:9180

@@ -25,6 +25,28 @@ spring:
     time-zone: Asia/Shanghai
     serialization:
       write-dates-as-timestamps: false
+  cloud:
+    sentinel:
+      transport:
+        dashboard: 192.168.19.64:8858
+        port: 8719
+      eager: true
+      datasource: # ✅ 与 transport 同级
+        flow:
+          nacos:
+            server-addr: ${NACOS_ADDR:192.168.19.64:8848}
+            dataId: device-report-service-flow-rules
+            groupId: SENTINEL_GROUP
+            rule-type: flow
+        degrade:
+          nacos:
+            server-addr: ${NACOS_ADDR:192.168.19.64:8848}
+            dataId: device-report-service-degrade-rules
+            groupId: SENTINEL_GROUP
+            rule-type: degrade
+feign:
+  sentinel:
+    enabled: true
 
 management:
   endpoints:
@@ -50,3 +72,7 @@ management:
 logging:
   level:
     com.iot.learn: INFO
+
+#添加feign-url
+dispatch:
+  base-url: ${DISPATCH_BASE_URL:http://localhost:8767}
