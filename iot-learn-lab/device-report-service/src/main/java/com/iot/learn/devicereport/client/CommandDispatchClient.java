@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "command-dispatch-service",
-        url = "${dispatch.base-url:http://localhost:8767}",
-        fallback = DispatchFallbackHandler.class)
+        url = "${dispatch.base-url:http://localhost:8767}"
+        , fallback = DispatchFallbackHandler.class)
 public interface CommandDispatchClient {
 
     @PostMapping("/api/v1/commands/ack")

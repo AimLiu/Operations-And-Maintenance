@@ -7,6 +7,13 @@
       labels:
         env: learn
         service: device-report-service
+- job_name: command-dispatch-service
+  metrics_path: /actuator/prometheus
+  static_configs:
+    - targets: ['192.168.16.1:8767']
+      labels:
+        env: learn
+        service: command-dispatch-service
 - job_name: apisix
   metrics_path: /apisix/prometheus/metrics
   static_configs:
