@@ -1,0 +1,27 @@
+server:
+  port: 8766
+
+spring:
+  application:
+    name: device-report-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:192.168.19.64:8848}
+        metadata:
+          version: v2
+      config:
+        file-extension: yaml
+  config:
+    import:
+      - optional:nacos:device-report-v2-app.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+
+#app:
+#  version: v2
+#  canary-bug-enabled: true   # C3 打开；C1/C2 可设 false
+
+management:
+  metrics:
+    tags:
+      application: device-report-service
+      version: v2

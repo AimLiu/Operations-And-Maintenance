@@ -14,3 +14,9 @@ export REDIS_HOST="${REDIS_HOST:-192.168.19.64}"
 # 可选：Windows 浏览器访问 WSL 服务时覆盖（一般脚本不需要）
 # export GATEWAY_URL=http://192.168.19.64:9080
 # export ADMIN_API=http://192.168.19.64:9180
+
+# phase4
+export GATEWAY_URL="${GATEWAY_URL:-http://localhost:9080}"
+export DIRECT_V1="${DIRECT_V1:-http://192.168.16.1:8765}"
+export DIRECT_V2="${DIRECT_V2:-http://192.168.16.1:8766}"
+export NACOS_ADDR="${NACOS_ADDR:-192.168.19.64:8848}"

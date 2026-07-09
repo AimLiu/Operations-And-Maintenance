@@ -1,5 +1,6 @@
 package com.iot.learn.devicereport.service;
 
+import com.iot.learn.devicereport.config.CanaryBugConfig;
 import com.iot.learn.devicereport.dto.DeviceReportRequest;
 import com.iot.learn.devicereport.dto.DeviceReportResponse;
 import com.iot.learn.devicereport.entity.DeviceReport;
@@ -13,13 +14,16 @@ import java.time.Instant;
 public class DeviceReportService {
 
     private final DeviceReportRepository repository;
+    private final CanaryBugConfig canaryBugConfig;
 
-    public DeviceReportService(DeviceReportRepository repository) {
+    public DeviceReportService(DeviceReportRepository repository, CanaryBugConfig canaryBugConfig) {
         this.repository = repository;
+        this.canaryBugConfig = canaryBugConfig;
     }
 
     @Transactional
     public DeviceReportResponse saveReport(String deviceId, DeviceReportRequest request) {
+        canaryBugConfig.maybeFail();
         DeviceReport report = new DeviceReport();
         report.setDeviceId(deviceId);
         report.setPayload(request.getPayload());
