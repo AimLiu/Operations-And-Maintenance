@@ -1,0 +1,84 @@
+server:
+  port: 8768
+
+spring:
+  application:
+    name: device-report-consumer
+  datasource:
+    # TimeZone 仅影响 PostgreSQL 会话的显示/解析方式；TIMESTAMPTZ 内部仍存 UTC 时刻
+    url: jdbc:postgresql://192.168.19.64:5432/iot_learn?options=-c%20TimeZone=Asia/Shanghai
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          # 作用于 LocalDateTime/Timestamp 等无时区类型；Instant 映射 TIMESTAMPTZ 始终按 UTC 时刻存储
+          time_zone: Asia/Shanghai
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+        jdbc.batch_versioned_data: true
+  jackson:
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:192.168.19.64:8848}
+        namespace: ${NACOS_NAMESPACE:public}
+        group: DEFAULT_GROUP
+        metadata:
+          version: v1
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:192.168.19.64:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:device-report-consumer-group}
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      max-poll-records: 100
+    listener:
+      type: batch
+      ack-mode: manual_immediate
+    properties:
+      spring.json.trusted.packages: "com.iot.learn.*"
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: device-report-consumer
+      version: ${app.version:v1}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      slo:
+        http.server.requests: 50ms, 100ms, 200ms, 500ms, 1s
+
+# 日志目录由 ModuleLogPathEnvironmentPostProcessor 自动解析为 iot-learn-lab/device-report-consumer/log
+# 仅当设置环境变量 LOGGING_FILE_PATH 时才覆盖
+logging:
+  level:
+    com.iot.learn: INFO
+
+app:
+  version: v1
+  kafka:
+    topic: ${KAFKA_TOPIC:device-report-events}
+    batch-insert-size: 50

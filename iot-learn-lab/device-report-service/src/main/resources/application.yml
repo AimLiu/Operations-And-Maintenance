@@ -70,7 +70,18 @@ spring:
             readTimeout: 10000
   config:
     import:
-      - optional:nacos:device-report-v2-app.yaml?group=DEFAULT_GROUP&refreshEnabled=false
+      - optional:nacos:device-report-v2-app.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:192.168.19.64:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        linger.ms: 5          # 微批次，利于吞吐
+        batch.size: 16384
+
 
 feign:
   sentinel:
@@ -108,3 +119,12 @@ dispatch:
 
 app:
   version: v1
+  kafka:
+    topic: ${KAFKA_TOPIC:device-report-events}
+  cache:
+    stats-ttl-seconds: 10
+    stats-ttl-jitter-seconds: 5      # E6 雪崩：TTL 随机抖动
+    null-cache-enabled: true            # E4 穿透：空值缓存
+    null-cache-ttl-seconds: 30
+    breakdown-lock-enabled: false        # E5 击穿：Redis 互斥锁（可设 false 对比）
+    lock-wait-millis: 3000

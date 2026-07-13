@@ -22,6 +22,7 @@
     <modules>
         <module>device-report-service</module>
         <module>command-dispatch-service</module>
+        <module>device-report-consumer</module>
     </modules>
 
     <properties>

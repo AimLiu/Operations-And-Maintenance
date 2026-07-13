@@ -1,6 +1,6 @@
-package com.iot.learn.devicereport.repository;
+package com.iot.learn.repository;
 
-import com.iot.learn.devicereport.entity.DeviceReport;
+import com.iot.learn.entity.DeviceReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,11 +11,4 @@ public interface DeviceReportRepository extends JpaRepository<DeviceReport, Long
 
     @Query(value = "SELECT pg_sleep(CAST(:seconds AS double precision)) IS NOT NULL", nativeQuery = true)
     void sleepSeconds(@Param("seconds") double seconds);
-
-    @Query("""
-            SELECT COUNT(d) AS reportCount, MAX(d.reportedAt) AS lastReportedAt
-            FROM DeviceReport d
-            WHERE d.deviceId = :deviceId
-            """)
-    DeviceStatsAggregation aggregateByDeviceId(@Param("deviceId") String deviceId);
 }

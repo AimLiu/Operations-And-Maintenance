@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "wisdom-first": {
+      "source": "seacen/wisdom-first",
+      "sourceType": "github",
+      "skillPath": "skills/wisdom-first/SKILL.md",
+      "computedHash": "ded20adbb030d304ee770241fe6cf4292ce57ea8affd41966e9b6041a6f59eba"
+    }
+  }
+}
