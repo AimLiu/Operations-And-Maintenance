@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: command-dispatch-service
+  namespace: iot-learn
+  labels:
+    app: command-dispatch-service
+spec:
+  type: ClusterIP
+  selector:
+    app: command-dispatch-service
+  ports:
+    - name: http
+      port: 8767
+      targetPort: 8767

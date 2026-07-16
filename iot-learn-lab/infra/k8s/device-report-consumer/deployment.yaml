@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: device-report-consumer
+  namespace: iot-learn
+  labels:
+    app: device-report-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: device-report-consumer
+  template:
+    metadata:
+      labels:
+        app: device-report-consumer
+        version: v1
+    spec:
+      containers:
+        - name: device-report-consumer
+          image: device-report-consumer:0.1.0-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8768
+              name: http
+          envFrom:
+            - configMapRef:
+                name: device-report-consumer-middleware
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8768
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8768
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"

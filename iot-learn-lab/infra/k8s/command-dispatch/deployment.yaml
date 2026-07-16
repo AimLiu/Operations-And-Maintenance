@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: command-dispatch-service
+  namespace: iot-learn
+  labels:
+    app: command-dispatch-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: command-dispatch-service
+  template:
+    metadata:
+      labels:
+        app: command-dispatch-service
+        version: v1
+    spec:
+      containers:
+        - name: command-dispatch-service
+          image: command-dispatch-service:0.1.0-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8767
+              name: http
+          envFrom:
+            - configMapRef:
+                name: command-dispatch-middleware
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8767
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8767
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

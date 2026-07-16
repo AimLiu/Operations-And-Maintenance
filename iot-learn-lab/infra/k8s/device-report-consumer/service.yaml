@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: device-report-consumer
+  namespace: iot-learn
+  labels:
+    app: device-report-consumer
+spec:
+  type: ClusterIP
+  selector:
+    app: device-report-consumer
+  ports:
+    - name: http
+      port: 8768
+      targetPort: 8768

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: command-dispatch-middleware
+  namespace: iot-learn
+data:
+  SPRING_PROFILES_ACTIVE: "k8s"

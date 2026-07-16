@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-report-middleware
+  namespace: iot-learn
+data:
+  DB_HOST: "host.minikube.internal"
+  DB_PORT: "5432"
+  DB_USERNAME: "postgres"
+  DB_PASSWORD: "postgres"
+  REDIS_HOST: "host.minikube.internal"
+  REDIS_PORT: "6379"
+  NACOS_ADDR: "192.168.19.64:8848"
+  SENTINEL_DASHBOARD: "host.minikube.internal:8858"
+  SPRING_PROFILES_ACTIVE: "k8s"
+  # W2：同 Namespace Service 短名；FQDN 等价于
+  # http://command-dispatch-service.iot-learn.svc.cluster.local:8767
+  DISPATCH_BASE_URL: "http://command-dispatch-service:8767"
+  # bootstrap 可用 host.minikube.internal；真正建连依赖 Task 1 的 advertised IP
+  KAFKA_BOOTSTRAP: "host.minikube.internal:9092"

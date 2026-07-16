@@ -34,7 +34,7 @@ services:
       # Kafka 对外通告的地址
       # 宿主机程序连接：localhost:9092
       # 同一 Docker 网络中的其他容器连接：kafka:19092
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:19092,PLAINTEXT_HOST://localhost:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:19092,PLAINTEXT_HOST://192.168.19.64:9092"
       # broker 之间通信使用的监听器名称
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       # KRaft controller 投票节点列表；单节点只写自己
@@ -72,4 +72,3 @@ services:
       - kafka-network
 networks:
   kafka-network:
-    driver: bridge

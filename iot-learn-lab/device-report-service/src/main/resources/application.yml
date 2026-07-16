@@ -68,9 +68,8 @@ spring:
           default:
             connectTimeout: 5000
             readTimeout: 10000
-  config:
-    import:
-      - optional:nacos:device-report-v2-app.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+  # Phase 4 金丝雀：Nacos 配置导入只保留在 application-v2.yml
+  # 默认 / k8s 不再 optional:nacos import，避免混合部署时 gRPC 连 127.0.0.1 刷屏
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP:192.168.19.64:9092}
     producer:

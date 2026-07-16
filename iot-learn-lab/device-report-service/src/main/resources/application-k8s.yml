@@ -1,0 +1,44 @@
+# 激活方式：SPRING_PROFILES_ACTIVE=k8s
+# 所有 host 通过环境变量注入，不在镜像内写死 IP
+#
+# Nacos 说明（W1）：
+# - 日志里 *_config-0 + 127.0.0.1:9848：多半是 application.yml 的 optional:nacos import（已挪到 v2）
+# - JAVA_OPT_EXT 会拼在 -jar 之后，-D 进不了 JVM；要用 JAVA_OPT 或 conf 里 nacos.inetutils.ip-address
+# - W1 K1：discovery/config 均 enabled=false，先保证上报/健康检查
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:host.minikube.internal}:${DB_PORT:5432}/iot_learn?options=-c%20TimeZone=Asia/Shanghai
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  data:
+    redis:
+      host: ${REDIS_HOST:host.minikube.internal}
+      port: ${REDIS_PORT:6379}
+      database: 1
+  cloud:
+    nacos:
+      discovery:
+        # W1 K1 基线不依赖服务发现；连不上 Nacos gRPC 时关掉以免刷屏
+        enabled: false
+        server-addr: ${NACOS_ADDR:192.168.19.64:8848}
+      config:
+        enabled: false
+        server-addr: ${NACOS_ADDR:192.168.19.64:8848}
+    sentinel:
+      transport:
+        dashboard: ${SENTINEL_DASHBOARD:host.minikube.internal:8858}
+    kafka:
+      bootstrap-servers: ${KAFKA_BOOTSTRAP:host.minikube.internal:9092}
+
+# Feign：@FeignClient(url=...) 读取此属性；同 Namespace 短名即可
+dispatch:
+  base-url: ${DISPATCH_BASE_URL:http://command-dispatch-service:8767}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
