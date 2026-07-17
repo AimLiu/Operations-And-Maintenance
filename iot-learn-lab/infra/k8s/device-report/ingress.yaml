@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: device-report-ingress
+  namespace: iot-learn
+  labels:
+    app: device-report-service
+  annotations:
+    # minikube ingress addon = ingress-nginx
+    # 允许请求体最大约 2MB
+    nginx.ingress.kubernetes.io/proxy-body-size: "2m"
+spec:
+  ingressClassName: nginx
+  rules:
+    #看 Host 是否 = device-report.iot-learn.local
+    - host: device-report.iot-learn.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: device-report-service
+                port:
+                  number: 8765

@@ -3,8 +3,8 @@
 **日期：** 2026-07-13 起  
 **架构：** 混合中间件（Java 微服务进 minikube + PostgreSQL / Redis / Kafka / Nacos 留 WSL Docker）
 
-> 操作步骤见：`docs/superpowers/plans/2026-07-13-stage2-w1-minikube-dockerfile.md`（W1）、`docs/superpowers/plans/2026-07-16-stage2-w2-three-services.md`（W2）  
-> 概念导读：`docs/superpowers/guides/2026-07-14-stage2-w1-k8s-primer.md`  
+> 操作步骤见：`docs/superpowers/plans/2026-07-13-stage2-w1-minikube-dockerfile.md`（W1）、`docs/superpowers/plans/2026-07-16-stage2-w2-three-services.md`（W2）、`docs/superpowers/plans/2026-07-16-stage2-w3-ingress-prometheus.md`（W3）、`docs/superpowers/plans/2026-07-17-stage2-w4-helm-chart.md`（W4）  
+> 概念导读：`docs/superpowers/guides/2026-07-14-stage2-w1-k8s-primer.md`、`…/2026-07-16-stage2-w2-service-dns-kafka.md`、`…/2026-07-16-stage2-w3-ingress-prometheus.md`、`…/2026-07-17-stage2-w4-helm-primer.md`  
 > 踩坑详解：`iot-learn-lab/infra/k8s/README.md`
 
 ---
@@ -20,6 +20,12 @@
 | 场景 | 日期 | 通过？ | 关键现象 |
 |------|------|--------|----------|
 | K2 三服务互通 | | ☐ | Feign 同步 201；async 202；consumer 落库；`scenario-k2-three-services.sh` → K2 PASS |
+
+## W3 场景记录
+
+| 场景 | 日期 | 通过？ | 关键现象 |
+|------|------|--------|----------|
+| K3 Ingress + Prom | 2026-07-17 | ☑ | Host 头 health UP；Ingress sync POST 成功；NodePort 可 scrape；`*-k8s` targets UP（需 `docker network connect minikube`）；`scenario-k3-ingress-baseline.sh` → K3 PASS |
 
 ---
 
@@ -195,8 +201,152 @@ kubectl rollout restart deployment/...   # 重建 Pod，新 Pod 才读到新 env
 
 ---
 
+## W3 面试题自测
+
+### 1. Ingress 和 Service 分别解决什么问题？谁做 L4、谁做 L7？
+
+**我的初答（摘要）：**
+
+- Ingress：外部访问 minikube 内服务时，经 Ingress 组件按规则转发；可选 nginx 等实现；规则里可配 NodePort 等方式。
+- Service：解决集群内服务互通，把 Service 名写入配置，用 `http://service-name.namespace.local...:port/url` 访问。
+
+**精炼结论（面试版）：**
+
+初答方向对，三处要拧正：
+
+| 初答 | 纠正 |
+|------|------|
+| Ingress 规则是 NodePort | NodePort 是 **Service 类型**；Ingress 规则是 **Host / Path**（还可 TLS） |
+| Service 只做服务间互通 | 还做 Ingress **backend**、以及 NodePort 给集群外（如 Prometheus） |
+| `service.namespace.local` | FQDN 是 `<svc>.<ns>.svc.cluster.local`；同 ns 短名 `http://svc:port` |
+
+| 对象 | 层 | 干什么 |
+|------|----|--------|
+| **Service** | 偏 **L4** | 稳定入口 → 一组 Pod（DNS / ClusterIP / NodePort） |
+| **Ingress** | **L7 HTTP(S)** | 按 Host/Path 转到某个 Service |
+
+口诀：**Service 找 Pod；Ingress 找 Service。Ingress 不能代替 Service。**
+
+**面试一句：** Service 偏四层找 Pod；Ingress 七层按域名/路径找 Service。
+
+---
+
+### 2. 为什么 W3 用 NodePort 给 Prometheus，而不是继续 port-forward？
+
+**我的初答（摘要）：**
+
+- NodePort 固定、配好后稳定；port-forward 适合本地临时调试，不适合正式常驻；宕机后会断（并自觉可能和 tunnel 弄混）。
+
+**精炼结论（面试版）：**
+
+「常驻 vs 临时」正确；和 **tunnel** 要分开：
+
+| | port-forward | minikube tunnel | NodePort |
+|--|--------------|-----------------|----------|
+| 用途 | 本机临时调试 | 本机访问 LB/Ingress（常占 80） | 集群外固定端口 scrape |
+| 权限 | 一般不需要管理员 | 常要（80/443） | 不需要 |
+| 何时断 | `kubectl` 进程结束 | tunnel 进程结束 | Service 在就一直在 |
+
+W3 选 NodePort：外部 Prometheus 要 **长期、可配置的 scrape 地址**（`$(minikube ip):30765`），不能依赖前台挂着的 port-forward。
+
+**面试一句：** 监控要常驻 scrape 用 NodePort；port-forward 给人调试，别和 tunnel 混。
+
+---
+
+### 3. 从 Docker 里的 Prometheus 访问 `minikube ip` 失败时，你怎么排？
+
+**我的初答（摘要）：**
+
+- 先查 Pod / Ingress；WSL 能通则从 Prometheus 容器内测；不通则两容器不同网桥，用 `docker connect` 互通。
+
+**精炼结论（面试版）：**
+
+容器内探测 + 接网 **正确**；**查 Ingress 对 Prometheus 几乎无用**（抓的是 NodePort，不走 Host 规则）。
+
+推荐顺序：
+
+```text
+1. 宿主机：curl http://$(minikube ip):30765/actuator/prometheus
+2. 配置：prometheus.yml 是否含 192.168.49.2:30765 / 30767
+3. 容器内：docker exec prometheus-learn wget ... 同地址
+4. 不通 → docker network connect minikube prometheus-learn
+5. UI /targets → device-report-service-k8s / command-dispatch-service-k8s UP
+```
+
+**面试一句：** 宿主机通、容器不通 → 网络命名空间问题；`docker network connect minikube prometheus-learn`，与 Ingress 无关。
+
+---
+
+### 4. `ingressClassName: nginx` 和 minikube addon 是什么关系？
+
+**我的初答（摘要）：**
+
+- `ingressClassName: nginx` 表示用 nginx 做 Ingress 路由；addon 表示是否启用 Ingress 层；类似 SLF4J 与具体日志实现。
+
+**精炼结论（面试版）：**
+
+类比成立，更贴一点：
+
+| 概念 | 作用 |
+|------|------|
+| `minikube addons enable ingress` | **安装** ingress-nginx 控制器，并提供名为 `nginx` 的 IngressClass |
+| `ingressClassName: nginx` | 这份 Ingress **交给** 该 Class/控制器处理 |
+
+没 enable → 没有实现；写了 Class 但控制器不在 → 规则不生效。
+
+**面试一句：** addon 装 nginx 实现；`ingressClassName` 选定这份规则由谁处理。
+
+---
+
+### 5. IDEA 直连通常比 Ingress 快还是慢？慢在哪几跳？
+
+**我的初答（摘要）：**
+
+- IDEA 直连 Prometheus 应比 Ingress 快，因为 Ingress 还要在集群里找服务。
+
+**精炼结论（面试版）：**
+
+题意是访问 **同一业务**（如 `/actuator/health`），不是「IDEA 连 Prometheus」：
+
+| 路径 | 相对快慢 | 多出来的跳 |
+|------|----------|------------|
+| IDEA `:8765` 直连 | 通常最快 | — |
+| NodePort `:30765` | 中间 | kube-proxy → Pod |
+| Ingress + Host | 通常最慢 | **再加** nginx Ingress **L7 代理** |
+
+慢主要在 **多一跳 ingress-nginx**，不是笼统的「找服务慢」。
+
+**面试一句：** IDEA 直连通常更快；Ingress 多 nginx 一跳，K3 用来建延迟基线。
+
+---
+
+## W3 踩坑记录
+
+| 踩坑 | 原因 | 处理 |
+|------|------|------|
+| Prometheus `*-k8s` target DOWN，配置已有 `192.168.49.2` | Prometheus 只在 compose 网，够不着 minikube 网段 | `docker network connect minikube prometheus-learn` |
+| 只 curl `http://$(minikube ip)/` 404 | 未带 Host，匹配不到 Ingress rule | `-H "Host: device-report.iot-learn.local"` |
+| 以为 Ingress 通了 Prometheus 就该 UP | 抓取走 NodePort，不走 Ingress | 查 `:30765` / 容器网络 |
+| 容器重建后 targets 又红 | `network connect` 非持久（未写进 compose） | 重建后再 connect 一次 |
+
+---
+
+## W3 面试话术速记（一页纸）
+
+| 问题 | 答法 |
+|------|------|
+| Ingress vs Service？ | Service 偏 L4 找 Pod；Ingress L7 按 Host/Path 找 Service |
+| 为何 NodePort 给 Prom？ | 常驻固定 scrape；port-forward 会话级；别和 tunnel 混 |
+| Prom 访问 minikube IP 失败？ | 宿主机通、容器不通 → `docker network connect minikube` |
+| ingressClassName 与 addon？ | addon 装控制器；Class 名选定实现 |
+| IDEA vs Ingress 延迟？ | IDEA 通常更快；Ingress 多 nginx 一跳 |
+| `kubectl apply` Service？ | 提交后即时生效，一般不必重启 Pod（≠ ConfigMap env） |
+
+---
+
 ## 待补
 
 - [ ] K2 场景通过截图 / `scenario-k2-three-services.sh` 输出粘贴
-- [ ] Grafana / Prometheus 对三 Pod 的 scrape（若 W2 已配）
-- [ ] W3 Ingress 入口对比 port-forward
+- [ ] K3 延迟数字粘贴（`ingress_host_header_avg_s` / `nodeport_avg_s` / 可选 `idea_direct_avg_s`）
+- [ ] Grafana 面板是否区分 `env=learn-k8s`（选修）
+- [ ] W4：执行 Helm Chart 计划后补场景表与面试题精炼结论

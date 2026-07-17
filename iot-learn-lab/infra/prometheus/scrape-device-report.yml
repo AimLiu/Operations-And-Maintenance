@@ -23,3 +23,22 @@
       labels:
         env: learn
         service: apisix
+# ----- Stage 2 W3：minikube NodePort（把 MINIKUBE_IP 换成 minikube ip 输出）-----
+- job_name: device-report-service-k8s
+  metrics_path: /actuator/prometheus
+  static_configs:
+    - targets:
+        - 192.168.49.2:30765
+      labels:
+        env: learn-k8s
+        service: device-report-service
+        runtime: minikube
+- job_name: command-dispatch-service-k8s
+  metrics_path: /actuator/prometheus
+  static_configs:
+    - targets:
+        - 192.168.49.2:30767
+      labels:
+        env: learn-k8s
+        service: command-dispatch-service
+        runtime: minikube

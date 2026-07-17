@@ -837,14 +837,15 @@ scripts/stage2/scenario-k2-three-services.sh
 
 ---
 
-## 下一步（W3 预告）
+## 下一步（W3）
 
 - `minikube addons enable ingress`；为 `device-report-service` 写 Ingress
 - 外部 Prometheus 增加 K8s Pod / NodePort scrape
 - 脚本：`scenario-k3-ingress-baseline.sh`
 - 压测对比：IDEA 直连 vs Ingress 延迟
 
-**W3 实施计划文件（待写）：** `docs/superpowers/plans/2026-07-16-stage2-w3-ingress-prometheus.md`
+**W3 实施计划：** `docs/superpowers/plans/2026-07-16-stage2-w3-ingress-prometheus.md`  
+**W3 前置指南：** `docs/superpowers/guides/2026-07-16-stage2-w3-ingress-prometheus.md`
 
 ---
 

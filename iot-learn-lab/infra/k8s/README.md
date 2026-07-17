@@ -10,6 +10,8 @@
 ```bash
 minikube start --driver=docker --cpus=4 --memory=6144
 minikube addons enable metrics-server
+# W3：Ingress
+minikube addons enable ingress
 ```
 
 ## 网络：Pod → WSL Docker
@@ -122,10 +124,108 @@ docker exec nacos-standalone cat /proc/1/cmdline | tr '\0' ' '
 映射正确只保证「从宿主机/网关 IP 能连上 Nacos」。  
 客户端按 **错误宣告地址** 去连时，仍然会失败——这是应用层地址协商问题，不是再开一个端口能解决的。
 
+## W2：三服务 + Feign / Kafka
+
+### 部署顺序
+
+```bash
+# 仓库根目录或 iot-learn-lab 下，按你的路径调整
+source scripts/stage2/env.sh
+
+# Kafka advertised 须为 Pod 可达 IP（勿用 localhost），见 infra/kafka/docker-compose-kafka.yml
+kubectl apply -f infra/k8s/device-report/configmap-env.yaml
+kubectl apply -f infra/k8s/command-dispatch/
+kubectl apply -f infra/k8s/device-report-consumer/
+kubectl rollout restart deployment/device-report-service -n iot-learn
+kubectl get pods -n iot-learn
+```
+
+### 验证
+
+```bash
+scripts/stage2/scenario-k2-three-services.sh
+# 期望：K2 PASS
+```
+
+### 服务发现口诀
+
+| 方式 | W2 用法 |
+|------|---------|
+| K8s Service DNS | `http://command-dispatch-service:8767`（同 ns） |
+| Nacos | k8s profile **关闭** |
+| Feign url | `DISPATCH_BASE_URL` → `dispatch.base-url` |
+
+### Kafka 踩坑
+
+端口 `nc` 通 ≠ 客户端能用。必须看 **advertised.listeners** 是否为 Pod 可达地址（如 `192.168.19.64:9092`），不能是 `localhost`。
+
+ConfigMap 改了环境变量后必须 `kubectl rollout restart`（envFrom 不会热更新已运行容器）。
+
+---
+
+## W3：Ingress + 外部 Prometheus
+
+### 启用与部署
+
+```bash
+minikube addons enable ingress
+source scripts/stage2/env.sh
+kubectl apply -f infra/k8s/device-report/service.yaml      # NodePort 30765
+kubectl apply -f infra/k8s/command-dispatch/service.yaml  # NodePort 30767
+kubectl apply -f infra/k8s/device-report/ingress.yaml
+kubectl get ingress -n iot-learn
+```
+
+### 访问
+
+```bash
+# 推荐：Host 头（不改 /etc/hosts，不依赖 tunnel）
+curl -H "Host: device-report.iot-learn.local" http://$(minikube ip)/actuator/health
+
+# 可选：minikube tunnel + /etc/hosts 域名访问
+minikube tunnel
+```
+
+`Host` 必须带：Ingress 按虚拟主机名选规则；只 curl `http://$(minikube ip)/...` 常 404。
+
+### Prometheus（集群外 scrape NodePort）
+
+1. `infra/prometheus/scrape-device-report.yml` 中 `*-k8s` jobs 的 target = `$(minikube ip):30765` / `:30767`（写入**正在运行的** `prometheus.yml` 并 reload）
+2. 让 Prometheus 容器够到 minikube 网段（配置对了仍 DOWN 时几乎都是这一步）：
+
+```bash
+docker network connect minikube prometheus-learn
+```
+
+3. UI：`http://192.168.19.64:9090/targets` → `device-report-service-k8s` / `command-dispatch-service-k8s` 为 **UP**
+
+> Ingress 通 ≠ Prometheus UP。抓取走 NodePort，不走 Ingress Host 规则。  
+> 容器重建后可能需要重新 `network connect`。
+
+### 验证
+
+```bash
+scripts/stage2/scenario-k3-ingress-baseline.sh
+# 期望：K3 PASS，并打印 ingress / nodeport 延迟均值
+```
+
+### 口诀
+
+| 概念 | 一句话 |
+|------|--------|
+| Service | 集群内稳定入口（DNS / ClusterIP / NodePort） |
+| Ingress | 集群 **HTTP(S) L7** 入口（Host/Path → Service） |
+| NodePort | 给 **集群外**（含 Docker 里的 Prometheus）开的固定端口 |
+| `kubectl apply` Service | 提交到 API 后即时生效，一般不必重启 Pod（≠ ConfigMap env） |
+| ServiceMonitor | Operator 体系；本阶段用 static_configs 即可 |
+
+---
+
 ## 常用命令
 
 ```bash
 kubectl get pods -n iot-learn
+kubectl get ingress,svc -n iot-learn
 kubectl logs -n iot-learn deploy/device-report-service -f
 kubectl port-forward -n iot-learn svc/device-report-service 8765:8765
 minikube image load device-report-service:0.1.0-SNAPSHOT
@@ -139,4 +239,11 @@ kubectl apply -f device-report/deployment.yaml
 
 ## 概念讲解
 
-前置知识长文：`docs/superpowers/guides/2026-07-14-stage2-w1-k8s-primer.md`
+| 周次 | 前置知识长文 |
+|------|----------------|
+| W1 | `docs/superpowers/guides/2026-07-14-stage2-w1-k8s-primer.md` |
+| W2 | `docs/superpowers/guides/2026-07-16-stage2-w2-service-dns-kafka.md` |
+| W3 | `docs/superpowers/guides/2026-07-16-stage2-w3-ingress-prometheus.md` |
+
+实施计划：`docs/superpowers/plans/2026-07-13-stage2-w1-*.md`、`2026-07-16-stage2-w2-*.md`、`2026-07-16-stage2-w3-*.md`  
+总览：`docs/superpowers/specs/2026-07-13-stage2-k8s-gitops-design.md`
