@@ -1,0 +1,10 @@
+# 叠加：-f values.yaml -f values-v2.yaml
+# W4：先用同镜像 + versionLabel=v2，验证 label/滚动；真正 v2 镜像与 canary-bug 留给 W5
+deviceReport:
+  versionLabel: v2
+  image: device-report-service:0.1.0-SNAPSHOT
+  replicaCount: 1
+commandDispatch:
+  versionLabel: v1
+deviceReportConsumer:
+  versionLabel: v1

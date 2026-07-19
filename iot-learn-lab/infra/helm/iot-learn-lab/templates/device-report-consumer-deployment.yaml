@@ -1,0 +1,46 @@
+{{- if .Values.deviceReportConsumer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deviceReportConsumer.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.deviceReportConsumer.name }}
+spec:
+  replicas: {{ .Values.deviceReportConsumer.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deviceReportConsumer.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deviceReportConsumer.name }}
+        version: {{ .Values.deviceReportConsumer.versionLabel | quote }}
+    spec:
+      containers:
+        - name: {{ .Values.deviceReportConsumer.name }}
+          image: {{ .Values.deviceReportConsumer.image | quote }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.deviceReportConsumer.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: device-report-consumer-middleware
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.deviceReportConsumer.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.deviceReportConsumer.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.deviceReportConsumer.resources | nindent 12 }}
+{{- end }}

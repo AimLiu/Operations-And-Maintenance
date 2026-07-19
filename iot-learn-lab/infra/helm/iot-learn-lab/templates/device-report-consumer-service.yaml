@@ -1,0 +1,18 @@
+{{- if .Values.deviceReportConsumer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.deviceReportConsumer.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.deviceReportConsumer.name }}
+spec:
+  type: {{ .Values.deviceReportConsumer.serviceType }}
+  selector:
+    app: {{ .Values.deviceReportConsumer.name }}
+  ports:
+    - name: http
+      port: {{ .Values.deviceReportConsumer.port }}
+      targetPort: {{ .Values.deviceReportConsumer.port }}
+{{- end }}

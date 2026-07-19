@@ -1,0 +1,46 @@
+{{- if .Values.commandDispatch.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.commandDispatch.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.commandDispatch.name }}
+spec:
+  replicas: {{ .Values.commandDispatch.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.commandDispatch.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.commandDispatch.name }}
+        version: {{ .Values.commandDispatch.versionLabel | quote }}
+    spec:
+      containers:
+        - name: {{ .Values.commandDispatch.name }}
+          image: {{ .Values.commandDispatch.image | quote }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.commandDispatch.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: command-dispatch-middleware
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.commandDispatch.port }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.commandDispatch.port }}
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.commandDispatch.resources | nindent 12 }}
+{{- end }}

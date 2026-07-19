@@ -1,0 +1,19 @@
+{{- if .Values.commandDispatch.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.commandDispatch.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.commandDispatch.name }}
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Values.commandDispatch.name }}
+  ports:
+    - name: http
+      port: {{ .Values.commandDispatch.port }}
+      targetPort: {{ .Values.commandDispatch.port }}
+      nodePort: {{ .Values.commandDispatch.nodePort }}
+{{- end }}

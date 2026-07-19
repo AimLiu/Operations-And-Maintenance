@@ -1,0 +1,82 @@
+# 镜像、副本、NodePort、中间件地址、Ingress host 等。
+#模板里写 {{ .Values.deviceReport.replicaCount }} 时，读的就是这里
+
+namespace: iot-learn
+
+# 三服务共用：拉镜像策略、SPRING_PROFILES_ACTIVE=k8s
+global:
+  imagePullPolicy: IfNotPresent
+  springProfilesActive: k8s
+
+# 混合架构下中间件地址（DB/Redis/Kafka/Nacos…），对应以前 ConfigMap
+middleware:
+  dbHost: host.minikube.internal
+  dbPort: "5432"
+  dbUsername: postgres
+  dbPassword: postgres
+  redisHost: host.minikube.internal
+  redisPort: "6379"
+  nacosAddr: "192.168.19.64:8848"
+  sentinelDashboard: host.minikube.internal:8858
+  kafkaBootstrap: host.minikube.internal:9092
+  kafkaTopic: device-report-events
+  kafkaConsumerGroupId: device-report-consumer-group-k8s
+
+# report 服务：开关、名字、副本、镜像、端口、NodePort、Feign URL、资源、Ingress
+deviceReport:
+  enabled: true
+  name: device-report-service
+  replicaCount: 1
+  image: device-report-service:0.1.0-SNAPSHOT
+  versionLabel: v1
+  port: 8765
+  nodePort: 30765
+  dispatchBaseUrl: http://command-dispatch-service:8767
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: "1000m"
+  ingress:
+    enabled: true
+    className: nginx
+    host: device-report.iot-learn.local
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "2m"
+
+# dispatch 服务同类参数
+commandDispatch:
+  enabled: true
+  name: command-dispatch-service
+  replicaCount: 1
+  image: command-dispatch-service:0.1.0-SNAPSHOT
+  versionLabel: v1
+  port: 8767
+  nodePort: 30767
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+# consumer；serviceType: ClusterIP 表示不暴露 NodePort
+deviceReportConsumer:
+  enabled: true
+  name: device-report-consumer
+  replicaCount: 1
+  image: device-report-consumer:0.1.0-SNAPSHOT
+  versionLabel: v1
+  port: 8768
+  # W3 未暴露 NodePort；W4 保持 ClusterIP
+  serviceType: ClusterIP
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: "1000m"

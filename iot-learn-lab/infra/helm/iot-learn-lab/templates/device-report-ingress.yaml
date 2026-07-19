@@ -1,0 +1,25 @@
+{{- if and .Values.deviceReport.enabled .Values.deviceReport.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: device-report-ingress
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.deviceReport.name }}
+  annotations:
+    {{- toYaml .Values.deviceReport.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.deviceReport.ingress.className }}
+  rules:
+    - host: {{ .Values.deviceReport.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.deviceReport.name }}
+                port:
+                  number: {{ .Values.deviceReport.port }}
+  {{- end }}

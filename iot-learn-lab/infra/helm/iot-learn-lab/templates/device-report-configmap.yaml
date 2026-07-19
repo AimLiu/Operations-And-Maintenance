@@ -1,0 +1,22 @@
+{{- if .Values.deviceReport.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-report-middleware
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.deviceReport.name }}
+data:
+  DB_HOST: {{ .Values.middleware.dbHost | quote }}
+  DB_PORT: {{ .Values.middleware.dbPort | quote }}
+  DB_USERNAME: {{ .Values.middleware.dbUsername | quote }}
+  DB_PASSWORD: {{ .Values.middleware.dbPassword | quote }}
+  REDIS_HOST: {{ .Values.middleware.redisHost | quote }}
+  REDIS_PORT: {{ .Values.middleware.redisPort | quote }}
+  NACOS_ADDR: {{ .Values.middleware.nacosAddr | quote }}
+  SENTINEL_DASHBOARD: {{ .Values.middleware.sentinelDashboard | quote }}
+  SPRING_PROFILES_ACTIVE: {{ .Values.global.springProfilesActive | quote }}
+  DISPATCH_BASE_URL: {{ .Values.deviceReport.dispatchBaseUrl | quote }}
+  KAFKA_BOOTSTRAP: {{ .Values.middleware.kafkaBootstrap | quote }}
+  {{- end }}

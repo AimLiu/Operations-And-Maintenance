@@ -1,0 +1,20 @@
+{{- if .Values.deviceReportConsumer.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: device-report-consumer-middleware
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.deviceReportConsumer.name }}
+data:
+  DB_HOST: {{ .Values.middleware.dbHost | quote }}
+  DB_PORT: {{ .Values.middleware.dbPort | quote }}
+  DB_USERNAME: {{ .Values.middleware.dbUsername | quote }}
+  DB_PASSWORD: {{ .Values.middleware.dbPassword | quote }}
+  NACOS_ADDR: {{ .Values.middleware.nacosAddr | quote }}
+  SPRING_PROFILES_ACTIVE: {{ .Values.global.springProfilesActive | quote }}
+  KAFKA_BOOTSTRAP: {{ .Values.middleware.kafkaBootstrap | quote }}
+  KAFKA_TOPIC: {{ .Values.middleware.kafkaTopic | quote }}
+  KAFKA_CONSUMER_GROUP_ID: {{ .Values.middleware.kafkaConsumerGroupId | quote }}
+{{- end }}

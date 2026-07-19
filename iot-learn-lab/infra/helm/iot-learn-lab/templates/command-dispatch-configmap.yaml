@@ -1,0 +1,12 @@
+{{- if .Values.commandDispatch.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: command-dispatch-middleware
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.commandDispatch.name }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.global.springProfilesActive | quote }}
+{{- end }}

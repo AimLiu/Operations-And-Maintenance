@@ -26,8 +26,9 @@ L1  可观测性     Prometheus + Grafana 指标告警
 | **Phase 3** | 应用韧性（Sentinel / Feign） | ✅ |
 | **Phase 4** | 发布策略（v1/v2 金丝雀） | ✅ |
 | **Phase 5** | 综合演练（Kafka / Redis 三高） | ✅ |
-| **Stage 2 W1–W3** | minikube 三服务 + Ingress + 外部 Prometheus | ✅ 进行中/已跑通 K1–K3 |
-| **Stage 2 W4+** | Helm → Argo CD / Rollouts → Jaeger → CI/CD | 待开始 |
+| **Stage 2 W1–W4** | minikube 三服务 + Ingress + Prom + Helm Chart | ✅ K1–K4 |
+| **Stage 2 W5** | Values 分层 / checksum / canary 切换 | 文档已备，待执行 |
+| **Stage 2 W6+** | Argo CD / Rollouts → Jaeger → CI/CD | 待开始 |
 
 > 命名：`Phase 2` = 网关周；`Stage 2` = K8s 进阶阶段。二者不要混称。
 
@@ -141,7 +142,7 @@ docs/superpowers/
 | `scripts/phase3` | `scenario-r1` … `r6` | Feign / Sentinel / 雪崩 |
 | `scripts/phase4` | `scenario-c1` … `c4` | 双版本与金丝雀回滚 |
 | `scripts/phase5` | `scenario-e1` … `e6` | 同步/异步削峰、缓存三高 |
-| `scripts/stage2` | `scenario-k1` … `k4` | K8s 基线 / 三服务 / Ingress+Prom / Helm |
+| `scripts/stage2` | `scenario-k1` … `k5` | K8s 基线 / 三服务 / Ingress+Prom / Helm / Values 切换 |
 
 Stage 2 在 WSL 中：
 
@@ -151,6 +152,7 @@ source scripts/stage2/env.sh
 ./scripts/stage2/scenario-k2-three-services.sh
 ./scripts/stage2/scenario-k3-ingress-baseline.sh   # 期望结尾 K3 PASS
 ./scripts/stage2/scenario-k4-helm-baseline.sh      # W4：Helm Release 基线
+./scripts/stage2/scenario-k5-helm-values-switch.sh # W5：v2+canary 切换
 ```
 
 **Prometheus 抓 K8s（W3）：** scrape 指向 `$(minikube ip):30765/30767` 后，需让容器够到 minikube 网：
@@ -189,6 +191,7 @@ curl -H "Host: device-report.iot-learn.local" \
 | W2 计划 / 指南 | `plans/2026-07-16-stage2-w2-three-services.md` · `guides/2026-07-16-stage2-w2-service-dns-kafka.md` |
 | W3 计划 / 指南 | `plans/2026-07-16-stage2-w3-ingress-prometheus.md` · `guides/2026-07-16-stage2-w3-ingress-prometheus.md` |
 | W4 计划 / 指南 | `plans/2026-07-17-stage2-w4-helm-chart.md` · `guides/2026-07-17-stage2-w4-helm-primer.md` |
+| W5 计划 / 指南 | `plans/2026-07-19-stage2-w5-helm-values.md` · `guides/2026-07-19-stage2-w5-helm-values.md` |
 | K8s 操作与踩坑 | [`infra/k8s/README.md`](infra/k8s/README.md) |
 | 面试复盘 | [`docs/stage2-interview-notes.md`](docs/stage2-interview-notes.md) · `docs/phase*-interview-notes.md` |
 

@@ -1,0 +1,46 @@
+{{- if .Values.deviceReport.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deviceReport.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.deviceReport.name }}
+spec:
+  replicas: {{ .Values.deviceReport.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deviceReport.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deviceReport.name }}
+        version: {{ .Values.deviceReport.versionLabel | quote }}
+    spec:
+      containers:
+        - name: {{ .Values.deviceReport.name }}
+          image: {{ .Values.deviceReport.image | quote }}
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.deviceReport.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: device-report-middleware
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.deviceReport.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.deviceReport.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.deviceReport.resources | nindent 12 }}
+  {{- end }}

@@ -1,0 +1,7 @@
+# 告诉 Helm：这是什么包、版本多少。不写具体副本数、镜像、DB 地址
+apiVersion: v2
+name: iot-learn-lab
+description: Stage 2 Helm chart for iot-learn-lab (hybrid middleware)
+type: application
+version: 0.1.0
+appVersion: "0.1.0-SNAPSHOT"

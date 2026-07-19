@@ -1,0 +1,19 @@
+{{- if .Values.deviceReport.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.deviceReport.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.deviceReport.name }}
+spec:
+  type: NodePort
+  selector:
+    app: {{ .Values.deviceReport.name }}
+  ports:
+    - name: http
+      port: {{ .Values.deviceReport.port }}
+      targetPort: {{ .Values.deviceReport.port }}
+      nodePort: {{ .Values.deviceReport.nodePort }}
+  {{- end }}

@@ -237,13 +237,21 @@ minikube image load device-report-service:0.1.0-SNAPSHOT
 kubectl apply -f device-report/deployment.yaml
 ```
 
+
 ## 概念讲解
 
 | 周次 | 前置知识长文 |
 |------|----------------|
+| 综合入门 | `docs/superpowers/guides/2026-07-19-kubernetes-helm-beginner-handbook.md`（零基础：集群组件、YAML、kubectl、Helm、排障） |
 | W1 | `docs/superpowers/guides/2026-07-14-stage2-w1-k8s-primer.md` |
 | W2 | `docs/superpowers/guides/2026-07-16-stage2-w2-service-dns-kafka.md` |
 | W3 | `docs/superpowers/guides/2026-07-16-stage2-w3-ingress-prometheus.md` |
+| W4 | `docs/superpowers/guides/2026-07-17-stage2-w4-helm-primer.md`（Helm 入门、Chart 文件说明、Values） |
+| W5 | `docs/superpowers/guides/2026-07-19-stage2-w5-helm-values.md`（Values 分层、checksum、canary） |
 
-实施计划：`docs/superpowers/plans/2026-07-13-stage2-w1-*.md`、`2026-07-16-stage2-w2-*.md`、`2026-07-16-stage2-w3-*.md`  
-总览：`docs/superpowers/specs/2026-07-13-stage2-k8s-gitops-design.md`
+实施计划：含 `2026-07-17-stage2-w4-helm-chart.md`、`2026-07-19-stage2-w5-helm-values.md`  
+总览：`docs/superpowers/specs/2026-07-13-stage2-k8s-gitops-design.md`  
+Helm 速查（W5）：`iot-learn-lab/docs/stage2-helm-cheatsheet.md`
+
+> **W4+ 部署入口：** 请使用 `infra/helm/iot-learn-lab/`（\`helm upgrade --install\`）。  
+> 本目录裸 YAML **保留作对照与排障**，勿与 Helm Release 混用同一批对象（易归属冲突）。
