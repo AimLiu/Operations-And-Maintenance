@@ -25,6 +25,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
     # 打开自动同步时取消注释：
-#    automated:
-#      prune: true
-#      selfHeal: true
+    automated:
+      prune: true
+      selfHeal: true
