@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: iot-learn-lab
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/AimLiu/Operations-And-Maintenance.git
+    targetRevision: main
+    path: iot-learn-lab/infra/helm/iot-learn-lab
+    helm:
+      releaseName: iot-learn
+      valueFiles:
+        - values.yaml
+        - values-minikube.yaml
+        - values-v1.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: iot-learn
+  # W6 前半：不自动同步，便于观察 OutOfSync
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    # 打开自动同步时取消注释：
+#    automated:
+#      prune: true
+#      selfHeal: true
