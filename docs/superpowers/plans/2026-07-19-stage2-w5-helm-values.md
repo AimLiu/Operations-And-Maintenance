@@ -597,7 +597,8 @@ helm upgrade iot-learn infra/helm/iot-learn-lab -n iot-learn \
 - Git 改 values → Sync → 集群变化（GitOps）
 - 产出 `infra/argocd/application-iot-learn-lab.yaml`
 
-**W6 实施计划文件（待写）：** `docs/superpowers/plans/2026-07-19-stage2-w6-argocd.md`
+**W6 实施计划：** `docs/superpowers/plans/2026-07-21-stage2-w6-argocd.md`  
+**W6 前置指南：** `docs/superpowers/guides/2026-07-21-stage2-w6-argocd.md`
 
 ---
 

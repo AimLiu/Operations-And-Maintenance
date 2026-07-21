@@ -17,6 +17,8 @@ spec:
       labels:
         app: {{ .Values.deviceReportConsumer.name }}
         version: {{ .Values.deviceReportConsumer.versionLabel | quote }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/device-report-consumer-configmap.yaml") . | sha256sum }}
     spec:
       containers:
         - name: {{ .Values.deviceReportConsumer.name }}

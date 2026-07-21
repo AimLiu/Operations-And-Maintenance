@@ -17,6 +17,9 @@ spec:
       labels:
         app: {{ .Values.deviceReport.name }}
         version: {{ .Values.deviceReport.versionLabel | quote }}
+      # 把 ConfigMap 内容的哈希写进 Pod template 的 annotation。ConfigMap一变 → 哈希变 → Pod 模板变 → Deployment 自动滚动。
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/device-report-configmap.yaml") . | sha256sum }}
     spec:
       containers:
         - name: {{ .Values.deviceReport.name }}

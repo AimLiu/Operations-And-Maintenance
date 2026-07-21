@@ -32,6 +32,9 @@ deviceReport:
   port: 8765
   nodePort: 30765
   dispatchBaseUrl: http://command-dispatch-service:8767
+  # W5：写入 ConfigMap → 环境变量
+  appVersion: v1
+  canaryBugEnabled: false
   resources:
     requests:
       memory: 512Mi
@@ -45,6 +48,7 @@ deviceReport:
     host: device-report.iot-learn.local
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "2m"
+
 
 # dispatch 服务同类参数
 commandDispatch:

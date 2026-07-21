@@ -1,0 +1,14 @@
+# 环境层：混合中间件地址。改这里即可全域生效（经 ConfigMap）。
+# 用法：-f values.yaml -f values-minikube.yaml -f values-v1.yaml
+middleware:
+  dbHost: host.minikube.internal
+  dbPort: "5432"
+  dbUsername: postgres
+  dbPassword: postgres
+  redisHost: host.minikube.internal
+  redisPort: "6379"
+  nacosAddr: "192.168.19.64:8848"
+  sentinelDashboard: host.minikube.internal:8858
+  kafkaBootstrap: host.minikube.internal:9092
+  kafkaTopic: device-report-events
+  kafkaConsumerGroupId: device-report-consumer-group-k8s

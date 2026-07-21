@@ -1,6 +1,7 @@
-# 叠加：helm upgrade ... -f values.yaml -f values-v1.yaml
 deviceReport:
   versionLabel: v1
+  appVersion: v1
+  canaryBugEnabled: false
   image: device-report-service:0.1.0-SNAPSHOT
 commandDispatch:
   versionLabel: v1

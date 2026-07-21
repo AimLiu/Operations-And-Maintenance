@@ -1,7 +1,8 @@
-# 叠加：-f values.yaml -f values-v2.yaml
-# W4：先用同镜像 + versionLabel=v2，验证 label/滚动；真正 v2 镜像与 canary-bug 留给 W5
+# 版本层：一条命令切到「带 version=v2 + canary-bug」的 report
 deviceReport:
   versionLabel: v2
+  appVersion: v2
+  canaryBugEnabled: true
   image: device-report-service:0.1.0-SNAPSHOT
   replicaCount: 1
 commandDispatch:

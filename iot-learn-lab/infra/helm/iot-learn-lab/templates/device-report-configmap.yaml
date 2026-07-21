@@ -19,4 +19,6 @@ data:
   SPRING_PROFILES_ACTIVE: {{ .Values.global.springProfilesActive | quote }}
   DISPATCH_BASE_URL: {{ .Values.deviceReport.dispatchBaseUrl | quote }}
   KAFKA_BOOTSTRAP: {{ .Values.middleware.kafkaBootstrap | quote }}
+  APP_VERSION: {{ .Values.deviceReport.appVersion | quote }}
+  APP_CANARY_BUG_ENABLED: {{ .Values.deviceReport.canaryBugEnabled | quote }}
   {{- end }}

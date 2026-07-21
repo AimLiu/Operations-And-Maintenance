@@ -17,6 +17,8 @@ spec:
       labels:
         app: {{ .Values.commandDispatch.name }}
         version: {{ .Values.commandDispatch.versionLabel | quote }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/command-dispatch-configmap.yaml") . | sha256sum }}
     spec:
       containers:
         - name: {{ .Values.commandDispatch.name }}
