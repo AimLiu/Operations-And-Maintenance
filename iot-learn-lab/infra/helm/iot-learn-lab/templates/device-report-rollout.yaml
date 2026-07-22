@@ -1,0 +1,32 @@
+{{- if and .Values.deviceReport.enabled .Values.deviceReport.rollouts.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ .Values.deviceReport.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+    app: {{ .Values.deviceReport.name }}
+spec:
+  replicas: {{ .Values.deviceReport.replicaCount }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: {{ .Values.deviceReport.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deviceReport.name }}
+        version: {{ .Values.deviceReport.versionLabel | quote }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/device-report-configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Values.deviceReport.name }}
+          image: {{ .Values.deviceReport.image | quote }}
+          # ... ports / envFrom / probes / resources 从 Deployment 原样搬迁 ...
+  strategy:
+    canary:
+      steps:
+        {{- toYaml .Values.deviceReport.rollouts.steps | nindent 8 }}
+{{- end }}

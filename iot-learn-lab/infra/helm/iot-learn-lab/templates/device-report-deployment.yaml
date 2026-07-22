@@ -1,4 +1,4 @@
-{{- if .Values.deviceReport.enabled }}
+{{- if and .Values.deviceReport.enabled (not .Values.deviceReport.rollouts.enabled) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,4 +46,4 @@ spec:
             periodSeconds: 20
           resources:
             {{- toYaml .Values.deviceReport.resources | nindent 12 }}
-  {{- end }}
+{{- end }}

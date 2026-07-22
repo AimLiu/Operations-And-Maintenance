@@ -48,7 +48,19 @@ deviceReport:
     host: device-report.iot-learn.local
     annotations:
       nginx.ingress.kubernetes.io/proxy-body-size: "2m"
-
+  rollouts:
+    enabled: false
+    # canary 步进；学习环境用较长 pause，便于观察
+    steps:
+      - setWeight: 10
+      - pause: { duration: 60s }
+      - setWeight: 50
+      - pause: { duration: 60s }
+      - setWeight: 100
+    # 可选：挂 Analysis（Task 5 打开）
+    analysis:
+      enabled: false
+      templateName: device-report-error-rate
 
 # dispatch 服务同类参数
 commandDispatch:

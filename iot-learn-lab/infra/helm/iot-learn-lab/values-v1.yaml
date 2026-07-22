@@ -4,6 +4,8 @@ deviceReport:
   canaryBugEnabled: false
   replicaCount: 2
   image: device-report-service:0.1.0-SNAPSHOT
+  rollouts:
+    enabled: true
 commandDispatch:
   versionLabel: v1
 deviceReportConsumer:
