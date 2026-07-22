@@ -1,0 +1,25 @@
+{{- if and .Values.deviceReport.enabled .Values.deviceReport.rollouts.enabled .Values.deviceReport.rollouts.analysis.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ .Values.deviceReport.rollouts.analysis.templateName | default "device-report-error-rate" }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "iot-learn-lab.labels" . | nindent 4 }}
+spec:
+  # 学习环境：多测几次，避免偶发毛刺误杀；失败够多次再 abort
+  metrics:
+    - name: v2-error-rate
+      interval: 20s
+      count: 5                 # 最多采 5 次
+      failureLimit: 2          # 失败 ≥2 次 → Analysis Failed → Rollout abort
+      successCondition: result[0] < 0.05
+      failureCondition: result[0] >= 0.05
+      provider:
+        prometheus:
+          address: http://host.minikube.internal:9090
+          query: |
+            sum(rate(http_server_requests_seconds_count{application="device-report-service",version="v2",status=~"5.."}[1m]))
+            /
+            clamp_min(sum(rate(http_server_requests_seconds_count{application="device-report-service",version="v2"}[1m])), 0.001)
+{{- end }}

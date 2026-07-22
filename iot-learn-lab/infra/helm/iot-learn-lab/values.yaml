@@ -53,13 +53,17 @@ deviceReport:
     # canary 步进；学习环境用较长 pause，便于观察
     steps:
       - setWeight: 10
-      - pause: { duration: 60s }
+          # 先打一会儿流量，让 Prom 有 rate 窗口
+      - pause: { duration: 45s }
+      - analysis:
+          templates:
+            - templateName: device-report-error-rate
       - setWeight: 50
       - pause: { duration: 60s }
       - setWeight: 100
     # 可选：挂 Analysis（Task 5 打开）
     analysis:
-      enabled: false
+      enabled: true
       templateName: device-report-error-rate
 
 # dispatch 服务同类参数
