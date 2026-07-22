@@ -24,7 +24,28 @@ spec:
       containers:
         - name: {{ .Values.deviceReport.name }}
           image: {{ .Values.deviceReport.image | quote }}
-          # ... ports / envFrom / probes / resources 从 Deployment 原样搬迁 ...
+          imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.deviceReport.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: device-report-middleware
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.deviceReport.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.deviceReport.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.deviceReport.resources | nindent 12 }}
   strategy:
     canary:
       steps:
