@@ -1,7 +1,7 @@
 deviceReport:
-  versionLabel: v1
-  appVersion: v1
-  canaryBugEnabled: false
+  versionLabel: v2
+  appVersion: v2
+  canaryBugEnabled: true   # 测自动 abort；false 则测通过
   replicaCount: 5
   image: device-report-service:0.1.0-SNAPSHOT
   rollouts:

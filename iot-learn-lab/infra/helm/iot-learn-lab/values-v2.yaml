@@ -2,9 +2,9 @@
 deviceReport:
   versionLabel: v2
   appVersion: v2
-  canaryBugEnabled: true
+  canaryBugEnabled: false
   image: device-report-service:0.1.0-SNAPSHOT
-  replicaCount: 1
+  replicaCount: 5
 commandDispatch:
   versionLabel: v1
 deviceReportConsumer:

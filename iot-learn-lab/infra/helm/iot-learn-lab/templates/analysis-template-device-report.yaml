@@ -13,8 +13,9 @@ spec:
       interval: 20s
       count: 5                 # 最多采 5 次
       failureLimit: 2          # 失败 ≥2 次 → Analysis Failed → Rollout abort
-      successCondition: result[0] < 0.05
-      failureCondition: result[0] >= 0.05
+      # 无 v2 时序时 result 为空，必须先 len 判断，避免 result[0] 越界
+      successCondition: len(result) == 0 || result[0] < 0.05
+      failureCondition: len(result) > 0 && result[0] >= 0.05
       provider:
         prometheus:
           address: http://host.minikube.internal:9090
@@ -22,6 +23,4 @@ spec:
             sum(rate(http_server_requests_seconds_count{application="device-report-service",version="v2",status=~"5.."}[1m]))
             /
             clamp_min(sum(rate(http_server_requests_seconds_count{application="device-report-service",version="v2"}[1m])), 0.001)
-          successCondition: len(result) == 0 || result[0] < 0.05
-          failureCondition: len(result) > 0 && result[0] >= 0.05
 {{- end }}
