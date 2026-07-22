@@ -1,6 +1,6 @@
 deviceReport:
   versionLabel: v1
-  appVersion: v1
+  appVersion: v1-canary-drill
   canaryBugEnabled: false
   replicaCount: 5
   image: device-report-service:0.1.0-SNAPSHOT
