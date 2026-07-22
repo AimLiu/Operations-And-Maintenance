@@ -22,4 +22,6 @@ spec:
             sum(rate(http_server_requests_seconds_count{application="device-report-service",version="v2",status=~"5.."}[1m]))
             /
             clamp_min(sum(rate(http_server_requests_seconds_count{application="device-report-service",version="v2"}[1m])), 0.001)
+          successCondition: len(result) == 0 || result[0] < 0.05
+          failureCondition: len(result) > 0 && result[0] >= 0.05
 {{- end }}
