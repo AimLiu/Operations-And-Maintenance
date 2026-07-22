@@ -1,6 +1,6 @@
 deviceReport:
   versionLabel: v1
-  appVersion: v1
+  appVersion: v1-canary-drill
   canaryBugEnabled: false   # 测自动 abort；false 则测通过
   replicaCount: 5
   image: device-report-service:0.1.0-SNAPSHOT
