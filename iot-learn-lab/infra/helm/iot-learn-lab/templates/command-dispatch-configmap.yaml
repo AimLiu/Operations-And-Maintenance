@@ -9,4 +9,5 @@ metadata:
     app: {{ .Values.commandDispatch.name }}
 data:
   SPRING_PROFILES_ACTIVE: {{ .Values.global.springProfilesActive | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.middleware.otlpEndpoint | quote }}
 {{- end }}

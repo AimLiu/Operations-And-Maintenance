@@ -21,4 +21,5 @@ data:
   KAFKA_BOOTSTRAP: {{ .Values.middleware.kafkaBootstrap | quote }}
   APP_VERSION: {{ .Values.deviceReport.appVersion | quote }}
   APP_CANARY_BUG_ENABLED: {{ .Values.deviceReport.canaryBugEnabled | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.middleware.otlpEndpoint | quote }}
   {{- end }}

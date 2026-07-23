@@ -513,7 +513,8 @@ W7：进行中 → 完成（执行后勾）。
 - `POST /reports` 全链路（Feign + Kafka consumer span）  
 - 产出 `docs/stage2-tracing-runbook.md`
 
-**W8 实施计划文件（待写）：** `docs/superpowers/plans/2026-07-22-stage2-w8-jaeger.md`（日期以开写当天为准）
+**W8 实施计划：** `docs/superpowers/plans/2026-07-23-stage2-w8-jaeger.md`  
+**W8 前置指南：** `docs/superpowers/guides/2026-07-23-stage2-w8-jaeger.md`
 
 ---
 

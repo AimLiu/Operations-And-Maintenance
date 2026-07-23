@@ -1,0 +1,93 @@
+# ============================================================
+# Jaeger all-in-one（Stage 2 W8）
+# ------------------------------------------------------------
+# 选型说明：
+#   - 镜像 jaegertracing/all-in-one:1.76.0
+#     · 1.x 线最后一批稳定版之一，仍用环境变量配置（2.x 改配置文件，学习成本更高）
+#     · 单容器 = Collector + Query + UI，比拆 ES/Cassandra 省内存
+#     · Badger 本地存储：重启不丢 lab 数据，又不必起 Elasticsearch
+#   - 自 1.50 起容器以 UID 10001 运行；挂载 ./data 前请在宿主机执行：
+#       sudo chown -R 10001:10001 ./data
+#     否则会报 mkdir /badger/key: permission denied
+#   - 不接入 Prometheus / Kafka 等现有 compose 网络：
+#     Pod / Windows 均经宿主机端口访问（host.minikube.internal / WSL IP），
+#     专用 bridge 更干净，也避免误连、端口误解。
+#
+# 启动（WSL，本文件所在目录）：
+#   mkdir -p data && sudo chown -R 10001:10001 data
+#   docker compose -f docker-compose-jaeger.yml up -d
+#
+# UI:   http://127.0.0.1:16686  或  http://<WSL-IP>:16686
+# OTLP: http://host.minikube.internal:4318/v1/traces  （Pod 内）
+# ============================================================
+
+name: iot-learn-jaeger
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.76.0
+    container_name: jaeger-learn
+    hostname: jaeger
+    restart: unless-stopped
+
+    environment:
+      TZ: Asia/Shanghai
+
+      # 打开 OTLP 接收（本 lab 应用走 Micrometer → OTel → OTLP）
+      COLLECTOR_OTLP_ENABLED: "true"
+
+      # Badger：嵌入式本地存储（仅 all-in-one 可用；比 memory 可持久，比 ES 省资源）
+      SPAN_STORAGE_TYPE: badger
+      BADGER_EPHEMERAL: "false"
+      BADGER_DIRECTORY_VALUE: /badger/data
+      BADGER_DIRECTORY_KEY: /badger/key
+      # lab 保留 3 天即可，避免磁盘涨满；生产可再调
+      BADGER_SPAN_STORE_TTL: 72h
+
+    ports:
+      # 只暴露学习需要的端口（Agent UDP / Zipkin 等默认不映射，减攻击面）
+      - "16686:16686"   # Query UI
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP（本 lab 优先）
+      # Admin / health（不对外业务用；健康检查与排障）
+      - "14269:14269"
+
+    volumes:
+      # 与本 compose 同级的 ./data → 容器 /badger（含 data/ 与 key/）
+      - ./data:/badger
+
+    healthcheck:
+      # all-in-one admin HTTP：就绪时 / 返回 200
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O /dev/null http://127.0.0.1:14269/ || exit 1",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    # 学习机 / 小服务器资源上限（可按机器调大）
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.10"
+          memory: 128M
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - jaeger-network
+
+networks:
+  jaeger-network:
+    name: iot-learn-jaeger
+    driver: bridge

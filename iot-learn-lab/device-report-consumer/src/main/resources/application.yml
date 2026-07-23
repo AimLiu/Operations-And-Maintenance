@@ -47,8 +47,11 @@ spring:
     listener:
       type: batch
       ack-mode: manual_immediate
+      observation-enabled: true
     properties:
       spring.json.trusted.packages: "com.iot.learn.*"
+    template:
+      observation-enabled: true
 
 
 management:

@@ -17,4 +17,5 @@ data:
   KAFKA_BOOTSTRAP: {{ .Values.middleware.kafkaBootstrap | quote }}
   KAFKA_TOPIC: {{ .Values.middleware.kafkaTopic | quote }}
   KAFKA_CONSUMER_GROUP_ID: {{ .Values.middleware.kafkaConsumerGroupId | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.middleware.otlpEndpoint | quote }}
 {{- end }}

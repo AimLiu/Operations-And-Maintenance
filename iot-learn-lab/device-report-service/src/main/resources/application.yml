@@ -40,6 +40,10 @@ spring:
         metadata:
           version: v1
       config:
+        # 默认 profile 不用 spring.config.import=nacos:（已挪到 application-v2.yml）
+        # 有 nacos-config 依赖时必须关掉此项，否则 IDEA 本地起不来
+#        import-check:
+#          enabled: false
         file-extension: yaml
     sentinel:
       transport:
@@ -80,7 +84,10 @@ spring:
       properties:
         linger.ms: 5          # 微批次，利于吞吐
         batch.size: 16384
-
+    listener:
+      observation-enabled: true
+    template:
+      observation-enabled: true
 
 feign:
   sentinel:
@@ -105,6 +112,13 @@ management:
         http.server.requests: true
       slo:
         http.server.requests: 50ms, 100ms, 200ms, 500ms, 1s
+#  tracing:
+#    sampling:
+#      probability: 1.0
+#  # 本地测 Jaeger 用；测完可删。注意 otlp 与 tracing 同级，不要缩进到 tracing 下面
+#  otlp:
+#    tracing:
+#      endpoint: http://192.168.19.64:4318/v1/traces
 
 # 日志目录由 ModuleLogPathEnvironmentPostProcessor 自动解析为 iot-learn-lab/device-report-service/log
 # 仅当设置环境变量 LOGGING_FILE_PATH 时才覆盖

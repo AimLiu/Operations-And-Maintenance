@@ -132,6 +132,7 @@ docker/**/data/
 docker/**/prometheus/data/
 docker/**/grafana/data/
 docker/**/alertmanager/data/
+iot-learn-lab/infra/**/data/
 
 # Local compose overrides (machine-specific ports, volumes, etc.)
 docker-compose.override.yml

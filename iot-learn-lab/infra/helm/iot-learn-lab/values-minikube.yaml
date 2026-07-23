@@ -12,3 +12,4 @@ middleware:
   kafkaBootstrap: host.minikube.internal:9092
   kafkaTopic: device-report-events
   kafkaConsumerGroupId: device-report-consumer-group-k8s
+  otlpEndpoint: "http://host.minikube.internal:4318/v1/traces"

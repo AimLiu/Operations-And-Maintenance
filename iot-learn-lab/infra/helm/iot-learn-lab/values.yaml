@@ -21,6 +21,8 @@ middleware:
   kafkaBootstrap: host.minikube.internal:9092
   kafkaTopic: device-report-events
   kafkaConsumerGroupId: device-report-consumer-group-k8s
+  # Pod → WSL Jaeger OTLP HTTP（与 application-k8s.yml 中 OTEL_EXPORTER_OTLP_ENDPOINT 对应）
+  otlpEndpoint: "http://host.minikube.internal:4318/v1/traces"
 
 # report 服务：开关、名字、副本、镜像、端口、NodePort、Feign URL、资源、Ingress
 deviceReport:

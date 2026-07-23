@@ -9,3 +9,9 @@ management:
     health:
       probes:
         enabled: true
+  tracing:
+    sampling:
+      probability: 1.0   # 学习环境全采样；生产常 0.01~0.1
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://host.minikube.internal:4318/v1/traces}

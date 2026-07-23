@@ -147,12 +147,43 @@ docker network connect minikube prometheus-learn
 
 ---
 
-## 同 tag 换镜像（改了 `application-k8s.yml` 之后）
+## 同 tag 换镜像（改了代码 / `application-k8s.yml` / pom 之后）
+
+`IfNotPresent` + 相同 tag 时，必须先让节点丢掉旧层再 `load`。  
+**W6+ 若 Argo CD 开了 AUTO-SYNC：** 直接 `scale 0` 会被立刻纠偏拉回 Pod——**先停 auto-sync（做法 A）**。
+
+Application 名：`iot-learn-lab`（`infra/argocd/application-iot-learn-lab.yaml`）。  
+report 为 **Rollout**；dispatch / consumer 为 **Deployment**。
 
 ```bash
-mvn -B -pl device-report-service -am package -DskipTests
+# 0) 暂停自动同步
+argocd app set iot-learn-lab --sync-policy none
+# 或 UI 关闭 AUTO-SYNC；或：
+# kubectl -n argocd patch application iot-learn-lab --type json \
+#   -p='[{"op":"remove","path":"/spec/syncPolicy/automated"}]'
+
+# 1) 缩到 0
+kubectl -n iot-learn scale rollout/device-report-service --replicas=0
+kubectl -n iot-learn scale deploy/command-dispatch-service --replicas=0
+kubectl -n iot-learn scale deploy/device-report-consumer --replicas=0
+kubectl -n iot-learn get pods   # 确认业务 Pod 已空
+
+# 2) 换镜像（按需改服务名；三服务都改则三条都做）
+minikube image rm device-report-service:0.1.0-SNAPSHOT || true
+minikube image load device-report-service:0.1.0-SNAPSHOT
+# minikube image rm/load command-dispatch-service:0.1.0-SNAPSHOT
+# minikube image rm/load device-report-consumer:0.1.0-SNAPSHOT
+
+# 3) 恢复同步（按 Git/Helm 拉回副本；values-v1 下 report 常为 5）
+argocd app set iot-learn-lab --sync-policy automated --auto-prune --self-heal
+argocd app sync iot-learn-lab
+```
+
+仅 Helm、无 Argo 时：
+
+```bash
 docker build -f device-report-service/Dockerfile -t device-report-service:0.1.0-SNAPSHOT .
-kubectl scale deploy/device-report-service -n iot-learn --replicas=0   # 若 image rm 报占用
+kubectl -n iot-learn scale rollout/device-report-service --replicas=0   # 或 deploy/…
 minikube image rm device-report-service:0.1.0-SNAPSHOT || true
 minikube image load device-report-service:0.1.0-SNAPSHOT
 helm upgrade iot-learn infra/helm/iot-learn-lab -n iot-learn \
@@ -161,3 +192,6 @@ helm upgrade iot-learn infra/helm/iot-learn-lab -n iot-learn \
   -f infra/helm/iot-learn-lab/values-v1.yaml \
   --wait
 ```
+
+W8 三服务 + tracing 全量步骤见：  
+`docs/superpowers/plans/2026-07-23-stage2-w8-jaeger.md` → Task 4 → Step 1.3。
