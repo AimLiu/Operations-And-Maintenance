@@ -36,7 +36,7 @@ public class DeviceReportServiceTest {
 
         DeviceReport saved = new DeviceReport();
         saved.setId(1L);
-        saved.setDeviceId("device-oo1");
+        saved.setDeviceId("device-001");
         saved.setPayload(request.getPayload());
         saved.setReportedAt(Instant.now());
 
