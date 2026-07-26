@@ -1,0 +1,10 @@
+# 测试默认配置：关闭 Nacos config import 强制检查（classpath 有 nacos-config）
+spring:
+  cloud:
+    nacos:
+      config:
+        import-check:
+          enabled: false
+        enabled: false
+      discovery:
+        enabled: false

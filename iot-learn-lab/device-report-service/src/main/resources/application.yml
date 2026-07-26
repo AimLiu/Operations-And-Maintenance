@@ -41,9 +41,9 @@ spring:
           version: v1
       config:
         # 默认 profile 不用 spring.config.import=nacos:（已挪到 application-v2.yml）
-        # 有 nacos-config 依赖时必须关掉此项，否则 IDEA 本地起不来
-#        import-check:
-#          enabled: false
+        # 有 nacos-config 依赖时必须关掉此项，否则 IDEA / CI 测试起不来
+        import-check:
+          enabled: false
         file-extension: yaml
     sentinel:
       transport:
