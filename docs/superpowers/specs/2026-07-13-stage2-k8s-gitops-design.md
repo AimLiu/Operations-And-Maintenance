@@ -290,20 +290,23 @@ Stage 2 在 Phase 1–5 网络口诀上新增第三条：**Pod 找 WSL Docker �
 
 | 类型 | 内容 |
 |------|------|
-| 动手 | CI 成功后更新 `values.yaml` 的 `image.tag` |
-| 实验 | 改 Java 代码 → push → 集群 RollingUpdate |
-| 产出 | `docs/stage2-cicd-runbook.md` |
+| 动手 | 将 Helm `image` 改为 GHCR 短 SHA；必要时 `imagePullSecrets` |
+| 实验 | values commit → Argo Sync → Pod 使用 `ghcr.io/...`；可去掉本机 load 主路径 |
+| 产出 | `docs/stage2-cicd-runbook.md`（续写 CD）+ `scenario-k10-gitops-cd.sh` |
+
+**实施计划：** `docs/superpowers/plans/2026-07-26-stage2-w10-gitops-cd.md`  
+**前置指南：** `docs/superpowers/guides/2026-07-26-stage2-w10-gitops-cd.md`
 
 **端到端链路：**
 
 ```text
 git push → GitHub Actions (test + build + push GHCR)
               ↓
-         更新 infra/helm/values.yaml image.tag
+         更新 infra/helm/values*.yaml image → ghcr.io/...:<sha>
               ↓
-         Argo CD 检测 diff → Sync → Rollout
+         Argo CD 检测 diff → Sync → Rollout/Deployment
               ↓
-         Grafana / Jaeger 验证
+         Ingress / Jaeger 验证
 ```
 
 ---
@@ -477,3 +480,4 @@ W9–W10 CI/CD（依赖 Dockerfile + Helm values）
 | 2026-07-22 | 补充 W7 Argo Rollouts 计划与指南；场景脚本 k7（Analysis 为加分项） |
 | 2026-07-23 | 补充 W8 Jaeger/OTLP 计划与指南；场景脚本 k8；Jaeger 优先 Docker 混合部署 |
 | 2026-07-23 | 补充 W9 GitHub Actions/GHCR 计划与指南；场景脚本 k9；CD 闭环留 W10 |
+| 2026-07-26 | W9 Task 6：`stage2-cicd-runbook.md` + interview/README；补充 W10 GitOps CD 计划与指南 |

@@ -27,8 +27,9 @@ L1  可观测性     Prometheus + Grafana 指标告警
 | **Phase 4** | 发布策略（v1/v2 金丝雀） | ✅ |
 | **Phase 5** | 综合演练（Kafka / Redis 三高） | ✅ |
 | **Stage 2 W1–W4** | minikube 三服务 + Ingress + Prom + Helm Chart | ✅ K1–K4 |
-| **Stage 2 W5** | Values 分层 / checksum / canary 切换 | 文档已备，待执行 |
-| **Stage 2 W6+** | Argo CD / Rollouts → Jaeger → CI/CD | 待开始 |
+| **Stage 2 W5–W8** | Values / Argo CD / Rollouts / Jaeger | ✅（见各周 plan/runbook） |
+| **Stage 2 W9** | GitHub Actions → GHCR | ✅ K9（`stage2-cicd-runbook.md`） |
+| **Stage 2 W10** | GitOps CD：values 钉 GHCR + Argo Sync | 文档已备，待执行 |
 
 > 命名：`Phase 2` = 网关周；`Stage 2` = K8s 进阶阶段。二者不要混称。
 

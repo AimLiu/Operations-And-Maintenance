@@ -3,7 +3,7 @@ deviceReport:
   appVersion: v2
   canaryBugEnabled: true   # 测自动 abort；false 则测通过
   replicaCount: 5
-  image: device-report-service:0.1.0-SNAPSHOT
+  image: ghcr.io/aimliu/device-report-service:sha-acdf94545e4e751126b3c5596cb25dbe1fd0f202
   rollouts:
     enabled: true
 commandDispatch:

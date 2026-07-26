@@ -6,7 +6,7 @@
 > 操作步骤见：W1–W4 plans + `docs/superpowers/plans/2026-07-19-stage2-w5-helm-values.md`（W5）  
 > 概念导读：W1–W4 guides + `docs/superpowers/guides/2026-07-19-stage2-w5-helm-values.md`  
 > 踩坑详解：`iot-learn-lab/infra/k8s/README.md` · Helm 速查：`docs/stage2-helm-cheatsheet.md`（W5 产出）  
-> Tracing：`docs/stage2-tracing-runbook.md`（W8）· 计划/指南：`2026-07-23-stage2-w8-jaeger`
+> Tracing：`docs/stage2-tracing-runbook.md`（W8）· CI/CD：`docs/stage2-cicd-runbook.md`（W9）· 计划/指南：`2026-07-23-stage2-w8-jaeger` / `2026-07-23-stage2-w9-github-actions` / `2026-07-26-stage2-w10-gitops-cd`
 
 ---
 
@@ -36,6 +36,14 @@
 | K8 Jaeger Kafka | 2026-07-23 | ☑* | producer `device-report-events send` 可见；consumer 未进同树（已知限制） |
 
 \* Kafka 为计划「尽力」项。截图与参数见 `docs/stage2-tracing-runbook.md` §4–§5。
+
+## W9 场景记录
+
+| 场景 | 日期 | 通过？ | 关键现象 |
+|------|------|--------|----------|
+| K9 GitHub Actions CI | 2026-07-26 | ☑ | `test` + 三服务 `build-and-push` 全绿；镜像进 GHCR（短 SHA）；示例 run `30192109160` |
+
+详见：`docs/stage2-cicd-runbook.md`。
 
 ---
 
@@ -365,6 +373,21 @@ W3 选 NodePort：外部 Prometheus 要 **长期、可配置的 scrape 地址**�
 | Metrics vs Traces？ | Prom 看聚合；Jaeger 看单次路径哪一段慢 |
 
 详见：`docs/stage2-tracing-runbook.md`
+
+---
+
+## W9 面试话术速记（一页纸）
+
+| 问题 | 答法 |
+|------|------|
+| CI vs CD？ | CI 出可追溯制品（测+推 GHCR）；CD/GitOps 把 image 写进 Git 再由 Argo 调和 |
+| 为何 short SHA？ | 钉死某次 commit；避免 `latest` 漂移 |
+| path filter？ | 只在 `iot-learn-lab/**` 变更时跑，省分钟 |
+| PR 为何不推包？ | 减少刷 GHCR；合并 `main` 再出正式制品 |
+| CI 绿了集群为何没变？ | W9 不改 Helm values；要 W10 改 image + Sync |
+| 构建一次多环境？ | 同一 tag 先部署测试期望，再晋升到生产期望，不二次 build |
+
+详见：`docs/stage2-cicd-runbook.md`
 
 ---
 

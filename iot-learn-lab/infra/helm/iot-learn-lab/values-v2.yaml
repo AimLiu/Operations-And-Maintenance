@@ -3,7 +3,7 @@ deviceReport:
   versionLabel: v2
   appVersion: v2
   canaryBugEnabled: false
-  image: device-report-service:0.1.0-SNAPSHOT
+  image: ghcr.io/aimliu/device-report-service:sha-acdf94545e4e751126b3c5596cb25dbe1fd0f202
   replicaCount: 5
 commandDispatch:
   versionLabel: v1
