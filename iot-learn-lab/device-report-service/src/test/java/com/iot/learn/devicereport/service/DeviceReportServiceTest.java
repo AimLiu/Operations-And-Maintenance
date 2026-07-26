@@ -1,5 +1,6 @@
 package com.iot.learn.devicereport.service;
 
+import com.iot.learn.devicereport.config.CanaryBugConfig;
 import com.iot.learn.devicereport.dto.DeviceReportRequest;
 import com.iot.learn.devicereport.dto.DeviceReportResponse;
 import com.iot.learn.devicereport.entity.DeviceReport;
@@ -22,7 +23,10 @@ public class DeviceReportServiceTest {
     @Mock
     private DeviceReportRepository repository;
 
-    @InjectMocks  // ← 创建真实的 DeviceReportService，并注入上面的 mock repository
+    @Mock
+    private CanaryBugConfig canaryBugConfig;
+
+    @InjectMocks
     private DeviceReportService service;
 
     @Test
