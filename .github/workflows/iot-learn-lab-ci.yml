@@ -1,0 +1,38 @@
+name: iot-learn-lab-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "iot-learn-lab/**"
+      - ".github/workflows/iot-learn-lab-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "iot-learn-lab/**"
+      - ".github/workflows/iot-learn-lab-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+defaults:
+  run:
+    working-directory: iot-learn-lab
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: iot-learn-lab/pom.xml
+      - name: Maven verify (three modules)
+        run: |
+          mvn -B -pl device-report-service,command-dispatch-service,device-report-consumer \
+            -am verify

@@ -283,6 +283,9 @@ Stage 2 在 Phase 1–5 网络口诀上新增第三条：**Pod 找 WSL Docker �
 | 流程 | `mvn verify` → docker build → push GHCR |
 | Tag | `${{ github.sha }}` 短 hash |
 
+**实施计划：** `docs/superpowers/plans/2026-07-23-stage2-w9-github-actions.md`  
+**前置指南：** `docs/superpowers/guides/2026-07-23-stage2-w9-github-actions.md`
+
 #### W10：CD 与 GitOps 闭环
 
 | 类型 | 内容 |
@@ -473,3 +476,4 @@ W9–W10 CI/CD（依赖 Dockerfile + Helm values）
 | 2026-07-21 | 补充 W6 Argo CD 计划与指南；K6=Argo Sync，Rollouts 场景脚本顺延为 k7 |
 | 2026-07-22 | 补充 W7 Argo Rollouts 计划与指南；场景脚本 k7（Analysis 为加分项） |
 | 2026-07-23 | 补充 W8 Jaeger/OTLP 计划与指南；场景脚本 k8；Jaeger 优先 Docker 混合部署 |
+| 2026-07-23 | 补充 W9 GitHub Actions/GHCR 计划与指南；场景脚本 k9；CD 闭环留 W10 |
